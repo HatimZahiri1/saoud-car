@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %} — SAOUD CAR Admin</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'core/images/logo.jpg' %}">
+    <link rel="stylesheet" href="{% static 'core/css/admin.css' %}?v=1.4">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<!-- Mobile Header (Visible only on small screens) -->
+<div class="admin-mobile-header">
+    <div class="sidebar-logo">
+        <img src="{% static 'core/images/logo.jpg' %}" alt="SAOUD CAR Logo" class="sidebar-logo-img" style="width: 36px; height: 36px;">
+        <div class="sidebar-logo-text">
+            <div class="admin-logo-styler notranslate" translate="no" style="font-size: 1.1rem;">
+                SAOUD<span class="admin-logo-highlight">CAR</span>
+            </div>
+        </div>
+    </div>
+    <button class="admin-sidebar-toggle" id="adminSidebarToggle">
+        <i data-lucide="menu" style="color: white;"></i>
+    </button>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="admin-sidebar-overlay" id="adminSidebarOverlay"></div>
+
+<!-- Sidebar -->
+<aside class="admin-sidebar" id="adminSidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <img src="{% static 'core/images/logo.jpg' %}" alt="SAOUD CAR Logo" class="sidebar-logo-img">
+            <div class="sidebar-logo-text">
+                <div class="admin-logo-styler notranslate" translate="no">
+                    SAOUD<span class="admin-logo-highlight">CAR</span>
+                </div>
+                <span>Panneau d'administration</span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-nav-label">Menu principal</div>
+        <a href="{% url 'core:admin_dashboard' %}" class="sidebar-nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="{% url 'core:admin_cars' %}" class="sidebar-nav-item {% if active_page == 'cars' %}active{% endif %}">
+            <i data-lucide="car"></i>
+            <span>Voitures</span>
+        </a>
+        <a href="{% url 'core:admin_reviews' %}" class="sidebar-nav-item {% if active_page == 'reviews' %}active{% endif %}">
+            <i data-lucide="star"></i>
+            <span>Avis clients</span>
+            {% if pending_reviews_count %}
+            <span class="sidebar-nav-badge">{{ pending_reviews_count }}</span>
+            {% endif %}
+        </a>
+        <a href="{% url 'core:admin_messages' %}" class="sidebar-nav-item {% if active_page == 'messages' %}active{% endif %}">
+            <i data-lucide="mail"></i>
+            <span>Messages</span>
+            {% if unread_messages_count %}
+            <span class="sidebar-nav-badge">{{ unread_messages_count }}</span>
+            {% endif %}
+        </a>
+
+        <div class="sidebar-nav-label" style="margin-top: 24px;">Site web</div>
+        <a href="{% url 'core:home' %}" class="sidebar-nav-item" target="_blank">
+            <i data-lucide="external-link"></i>
+            <span>Voir le site</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="{% url 'core:home' %}">
+            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+            <span>Retour au site</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="admin-main">
+    {% if messages %}
+    <div class="admin-alerts">
+        {% for message in messages %}
+        <div class="admin-alert admin-alert-{{ message.tags }}">
+            <i data-lucide="{% if message.tags == 'success' %}check-circle{% else %}alert-circle{% endif %}" style="width:18px;height:18px;"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    <!-- Admin Footer -->
+    <footer class="admin-footer">
+        <p>&copy; 2026 SAOUD CAR. Tous droits réservés.</p>
+        <div class="admin-footer-links">
+            Panneau d'administration <a href="{% url 'core:home' %}" target="_blank">SAOUD CAR</a>
+        </div>
+    </footer>
+</main>
+
+<script>
+    lucide.createIcons();
+    
+    // Mobile Sidebar Toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('adminSidebarToggle');
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('adminSidebarOverlay');
+
+        if (toggleBtn && sidebar && overlay) {
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('open');
+            }
+
+            toggleBtn.addEventListener('click', toggleSidebar);
+            overlay.addEventListener('click', toggleSidebar);
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+{% extends 'core/admin/base_admin.html' %}
+
+{% block title %}{% if car %}Modifier {{ car.brand }} {{ car.name }}{% else %}Ajouter une voiture{% endif %}{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <h1>{% if car %}Modifier « {{ car.brand }} {{ car.name }} »{% else %}Ajouter une voiture{% endif %}</h1>
+    <p>{% if car %}Modifiez les informations du véhicule ci-dessous{% else %}Remplissez les informations du nouveau véhicule{% endif %}</p>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="admin-form-card">
+    {% csrf_token %}
+    <div class="admin-form-grid">
+        <div class="admin-form-group">
+            <label for="brand">Marque *</label>
+            <input type="text" id="brand" name="brand" required placeholder="Ex: Dacia, Renault..." value="{{ car.brand|default:'' }}">
+        </div>
+        
+        <div class="admin-form-group">
+            <label for="name">Nom du véhicule *</label>
+            <input type="text" id="name" name="name" required placeholder="Ex: Sandero, Duster..." value="{{ car.name|default:'' }}">
+        </div>
+        
+        <div class="admin-form-group">
+            <label for="category">Catégorie</label>
+            <select id="category" name="category">
+                {% for value, label in categories %}
+                <option value="{{ value }}" {% if car.category == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="admin-form-group">
+            <label for="price_per_day">Prix par jour (MAD) *</label>
+            <input type="number" id="price_per_day" name="price_per_day" required step="0.01" placeholder="250.00" value="{{ car.price_per_day|default:'' }}">
+        </div>
+        
+        <div class="admin-form-group">
+            <label for="seats">Nombre de places</label>
+            <input type="number" id="seats" name="seats" min="1" max="9" value="{{ car.seats|default:5 }}">
+        </div>
+        
+        <div class="admin-form-group">
+            <label for="transmission">Transmission</label>
+            <select id="transmission" name="transmission">
+                {% for value, label in transmissions %}
+                <option value="{{ value }}" {% if car.transmission == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="admin-form-group">
+            <label for="fuel_type">Carburant</label>
+            <select id="fuel_type" name="fuel_type">
+                {% for value, label in fuel_types %}
+                <option value="{{ value }}" {% if car.fuel_type == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="admin-form-group">
+            <label for="image">Photo du véhicule</label>
+            <input type="file" id="image" name="image" accept="image/*">
+            {% if car and car.get_image_url %}
+            <div class="current-image-preview">
+                <small style="color:var(--admin-text-muted);">Image actuelle :</small>
+                <img src="{{ car.get_image_url }}" alt="{{ car.name }}">
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="admin-form-group full-width">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3" placeholder="Description optionnelle du véhicule...">{{ car.description|default:'' }}</textarea>
+        </div>
+        
+        <div class="admin-form-group">
+            <div class="admin-checkbox-group">
+                <input type="checkbox" id="is_available" name="is_available" {% if car.is_available or not car %}checked{% endif %}>
+                <label for="is_available">Véhicule disponible à la location</label>
+            </div>
+        </div>
+        
+        <div class="admin-form-group">
+            <div class="admin-checkbox-group">
+                <input type="checkbox" id="featured" name="featured" {% if car.featured %}checked{% endif %}>
+                <label for="featured">Afficher en page d'accueil</label>
+            </div>
+        </div>
+        
+        <div class="admin-form-actions">
+            <a href="{% url 'core:admin_cars' %}" class="admin-btn admin-btn-outline">Annuler</a>
+            <button type="submit" class="admin-btn admin-btn-primary">
+                <i data-lucide="{% if car %}save{% else %}plus{% endif %}" style="width:18px;height:18px;"></i>
+                {% if car %}Enregistrer{% else %}Ajouter{% endif %}
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}

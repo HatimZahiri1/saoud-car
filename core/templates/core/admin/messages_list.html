@@ -1,0 +1,66 @@
+{% extends 'core/admin/base_admin.html' %}
+
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <h1>Messages de contact</h1>
+    <p>Consultez les messages envoyés par les visiteurs du site</p>
+</div>
+
+<div class="admin-table-wrapper">
+    <div class="admin-table-header">
+        <h2>Tous les messages ({{ all_messages|length }})</h2>
+    </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Sujet</th>
+                <th>Message</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for msg in all_messages %}
+            <tr>
+                <td><strong>{{ msg.name }}</strong></td>
+                <td>{{ msg.email }}</td>
+                <td>{{ msg.phone|default:"—" }}</td>
+                <td>{{ msg.subject }}</td>
+                <td class="message-content">{{ msg.message|truncatewords:12 }}</td>
+                <td>
+                    {% if msg.is_read %}
+                    <span class="badge badge-green">Lu</span>
+                    {% else %}
+                    <span class="badge badge-yellow">Non lu</span>
+                    {% endif %}
+                </td>
+                <td>{{ msg.created_at|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <div class="admin-actions">
+                        <a href="{% url 'core:admin_message_read' msg.id %}" class="admin-btn admin-btn-sm {% if msg.is_read %}admin-btn-outline{% else %}admin-btn-green{% endif %}" title="{% if msg.is_read %}Marquer non lu{% else %}Marquer lu{% endif %}">
+                            <i data-lucide="{% if msg.is_read %}eye-off{% else %}eye{% endif %}" style="width:14px;height:14px;"></i>
+                        </a>
+                        <a href="{% url 'core:admin_message_delete' msg.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer ce message ?')">
+                            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="admin-empty">
+                    <i data-lucide="mail" style="width:48px;height:48px;"></i>
+                    <p>Aucun message reçu pour le moment</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

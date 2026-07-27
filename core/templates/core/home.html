@@ -1,0 +1,276 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" id="hero">
+    
+    <div class="container hero-content">
+        <div class="hero-text">
+            <span class="hero-badge">
+                <i data-lucide="sparkles" style="width:14px;height:14px;"></i>
+                N°1 de la location à Ben Slimane
+            </span>
+            <h1>Louez la voiture de <span class="text-gradient">vos rêves</span> en toute simplicité</h1>
+            <p class="hero-subtitle">Des véhicules récents, un service irréprochable et des prix imbattables. SAOUD CAR vous accompagne dans tous vos déplacements.</p>
+            <div class="hero-actions">
+                <a href="{% url 'core:cars' %}" class="btn btn-primary btn-lg">
+                    <i data-lucide="car" style="width:20px;height:20px;"></i>
+                    Voir nos véhicules
+                </a>
+                <a href="tel:+212661395495" class="btn btn-outline btn-lg">
+                    <i data-lucide="phone" style="width:20px;height:20px;"></i>
+                    Appeler maintenant
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-number" data-count="1200">0</span>
+                    <span class="hero-stat-label">Clients satisfaits</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number" data-count="25">0</span>
+                    <span class="hero-stat-label">Véhicules disponibles</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number" data-count="22">0</span>
+                    <span class="hero-stat-label">Années d'expérience</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="hero-scroll-indicator">
+        <i data-lucide="chevrons-down" style="width:24px;height:24px;"></i>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="section features-section" id="features">
+    <div class="container">
+        <div class="section-header" data-animate="fade-up">
+            <span class="section-badge">Nos Avantages</span>
+            <h2>Pourquoi choisir <span class="text-gradient">SAOUD CAR</span> ?</h2>
+            <p>Un service complet et professionnel adapté à tous vos besoins de mobilité.</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card" data-animate="fade-up" data-delay="100">
+                <div class="feature-icon">
+                    <i data-lucide="shield-check" style="width:28px;height:28px;"></i>
+                </div>
+                <h3>Assurance Complète</h3>
+                <p>Tous nos véhicules sont entièrement assurés pour votre tranquillité d'esprit.</p>
+            </div>
+            
+            <div class="feature-card" data-animate="fade-up" data-delay="200">
+                <div class="feature-icon">
+                    <i data-lucide="banknote" style="width:28px;height:28px;"></i>
+                </div>
+                <h3>Prix Compétitifs</h3>
+                <p>Les meilleurs tarifs de la région avec des offres spéciales toute l'année.</p>
+            </div>
+            
+            <div class="feature-card" data-animate="fade-up" data-delay="300">
+                <div class="feature-icon">
+                    <i data-lucide="clock" style="width:28px;height:28px;"></i>
+                </div>
+                <h3>Disponible 7j/7</h3>
+                <p>Service flexible avec possibilité de location à tout moment.</p>
+            </div>
+            
+            <div class="feature-card" data-animate="fade-up" data-delay="400">
+                <div class="feature-icon">
+                    <i data-lucide="wrench" style="width:28px;height:28px;"></i>
+                </div>
+                <h3>Véhicules Entretenus</h3>
+                <p>Flotte régulièrement révisée et en parfait état mécanique.</p>
+            </div>
+            
+            <div class="feature-card" data-animate="fade-up" data-delay="500">
+                <div class="feature-icon">
+                    <i data-lucide="map-pin" style="width:28px;height:28px;"></i>
+                </div>
+                <h3>Livraison Possible</h3>
+                <p>Nous pouvons livrer le véhicule directement à votre emplacement.</p>
+            </div>
+            
+            <div class="feature-card" data-animate="fade-up" data-delay="600">
+                <div class="feature-icon">
+                    <i data-lucide="headset" style="width:28px;height:28px;"></i>
+                </div>
+                <h3>Support 24/7</h3>
+                <p>Assistance téléphonique permanente en cas de besoin.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Fleet Preview Section -->
+<section class="section fleet-section">
+    <div class="container">
+        <div class="section-header" data-animate="fade-up">
+            <span class="section-badge">Notre Flotte</span>
+            <h2>Découvrez nos <span class="text-gradient">véhicules populaires</span></h2>
+            <p>Une sélection variée pour répondre à tous vos besoins de déplacement.</p>
+        </div>
+        
+        <div class="fleet-grid">
+            {% for car in featured_cars %}
+            <div class="car-card" data-animate="fade-up" data-delay="{{ forloop.counter }}00">
+                {% if forloop.first %}<div class="car-card-badge">Populaire</div>{% endif %}
+                <div class="car-card-image">
+                    {% if car.get_image_url %}
+                    <img src="{{ car.get_image_url }}" alt="{{ car.brand }} {{ car.name }}">
+                    {% else %}
+                    <div style="width:100%;height:200px;background:var(--gray-800);display:flex;align-items:center;justify-content:center;">
+                        <i data-lucide="car" style="width:48px;height:48px;color:var(--gray-500);"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="car-card-body">
+                    <div class="car-card-category">{{ car.get_category_display }}</div>
+                    <h3>{{ car.brand }} {{ car.name }}</h3>
+                    <div class="car-card-specs">
+                        <span><i data-lucide="users" style="width:14px;height:14px;"></i> {{ car.seats }} places</span>
+                        <span><i data-lucide="fuel" style="width:14px;height:14px;"></i> {{ car.get_fuel_type_display }}</span>
+                        <span><i data-lucide="settings-2" style="width:14px;height:14px;"></i> {{ car.get_transmission_display }}</span>
+                    </div>
+                    <div class="car-card-footer">
+                        <div class="car-card-price">
+                            <span class="price-amount">{{ car.price_per_day|floatformat:0 }}</span>
+                            <span class="price-period">MAD / jour</span>
+                        </div>
+                        <a href="https://wa.me/212661395495?text=Bonjour, je souhaite réserver une {{ car.brand }} {{ car.name }}" class="btn btn-primary btn-sm">Réserver</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="fleet-empty" style="grid-column: 1/-1; text-align:center; padding:48px 24px;">
+                <i data-lucide="car" style="width:48px;height:48px;color:var(--gray-500);"></i>
+                <p style="color:var(--gray-500);margin-top:16px;">Nos véhicules seront bientôt disponibles.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="section-cta" data-animate="fade-up">
+            <a href="{% url 'core:cars' %}" class="btn btn-outline btn-lg">
+                Voir toute la flotte
+                <i data-lucide="arrow-right" style="width:18px;height:18px;"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section cta-section">
+    <div class="cta-bg-effects">
+        <div class="cta-circle cta-circle-1"></div>
+        <div class="cta-circle cta-circle-2"></div>
+    </div>
+    <div class="container cta-content" data-animate="fade-up">
+        <h2>Prêt à prendre la route ?</h2>
+        <p>Contactez-nous dès maintenant pour réserver votre véhicule. Service rapide et sans tracas.</p>
+        <div class="cta-actions">
+            <a href="tel:+212661395495" class="btn btn-white btn-lg">
+                <i data-lucide="phone" style="width:20px;height:20px;"></i>
+                +212 661 395 495
+            </a>
+            <a href="https://wa.me/212661395495" class="btn btn-outline-white btn-lg" target="_blank">
+                <i data-lucide="message-circle" style="width:20px;height:20px;"></i>
+                WhatsApp
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section testimonials-section">
+    <div class="container">
+        <div class="section-header" data-animate="fade-up">
+            <span class="section-badge">Témoignages</span>
+            <h2>Ce que disent <span class="text-gradient">nos clients</span></h2>
+        </div>
+        
+        <div class="testimonials-grid">
+            {% for review in reviews %}
+            <div class="testimonial-card" data-animate="fade-up" data-delay="{{ forloop.counter0|add:1 }}00">
+                <div class="testimonial-stars">
+                    {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                    <i data-lucide="star" style="width:16px;height:16px;" fill="currentColor"></i>
+                    {% else %}
+                    <i data-lucide="star" style="width:16px;height:16px;"></i>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <p>"{{ review.comment }}"</p>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">{{ review.name|first|upper }}</div>
+                    <div>
+                        <strong>{{ review.name }}</strong>
+                        {% if review.city %}<span>{{ review.city }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="fleet-empty" style="grid-column: 1/-1; text-align:center; padding:48px 24px;">
+                <i data-lucide="message-square" style="width:48px;height:48px;color:var(--gray-500);"></i>
+                <p style="color:var(--gray-500);margin-top:16px;">Aucun avis pour le moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Review Form -->
+        <div class="review-form-section" data-animate="fade-up" style="margin-top: 48px;">
+            <div class="review-form-card">
+                <h3>Partagez votre expérience</h3>
+                <p style="color: var(--gray-500); margin-bottom: 24px;">Votre avis nous aide à améliorer nos services</p>
+                <form method="post" action="{% url 'core:submit_review' %}" class="review-form">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="review-name">Votre nom *</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="user" style="width:18px;height:18px;"></i>
+                                <input type="text" id="review-name" name="name" required placeholder="Votre nom">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="review-city">Votre ville</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="map-pin" style="width:18px;height:18px;"></i>
+                                <input type="text" id="review-city" name="city" placeholder="Ex: Casablanca">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label>Votre note *</label>
+                        <div class="star-rating" id="starRating">
+                            <input type="hidden" name="rating" id="ratingValue" value="5">
+                            <span class="star-btn" data-value="1">★</span>
+                            <span class="star-btn" data-value="2">★</span>
+                            <span class="star-btn" data-value="3">★</span>
+                            <span class="star-btn" data-value="4">★</span>
+                            <span class="star-btn active" data-value="5">★</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="review-comment">Votre commentaire *</label>
+                        <div class="input-wrapper textarea-wrapper">
+                            <i data-lucide="message-square" style="width:18px;height:18px;"></i>
+                            <textarea id="review-comment" name="comment" rows="3" required placeholder="Racontez votre expérience avec SAOUD CAR..."></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 16px;">
+                        <i data-lucide="send" style="width:18px;height:18px;"></i>
+                        Envoyer mon avis
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

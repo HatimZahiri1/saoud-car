@@ -1,0 +1,129 @@
+{% extends 'core/admin/base_admin.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <h1>Dashboard</h1>
+    <p>Bienvenue dans votre panneau d'administration SAOUD CAR</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="admin-stats">
+    <div class="admin-stat-card">
+        <div class="admin-stat-header">
+            <div class="admin-stat-icon red">
+                <i data-lucide="car"></i>
+            </div>
+        </div>
+        <div class="admin-stat-number">{{ total_cars }}</div>
+        <div class="admin-stat-label">Voitures au total</div>
+    </div>
+    
+    <div class="admin-stat-card">
+        <div class="admin-stat-header">
+            <div class="admin-stat-icon green">
+                <i data-lucide="check-circle"></i>
+            </div>
+        </div>
+        <div class="admin-stat-number">{{ available_cars }}</div>
+        <div class="admin-stat-label">Véhicules disponibles</div>
+    </div>
+    
+    <div class="admin-stat-card">
+        <div class="admin-stat-header">
+            <div class="admin-stat-icon yellow">
+                <i data-lucide="star"></i>
+            </div>
+        </div>
+        <div class="admin-stat-number">{{ total_reviews }}</div>
+        <div class="admin-stat-label">Avis clients ({{ pending_reviews }} en attente)</div>
+    </div>
+    
+    <div class="admin-stat-card">
+        <div class="admin-stat-header">
+            <div class="admin-stat-icon blue">
+                <i data-lucide="mail"></i>
+            </div>
+        </div>
+        <div class="admin-stat-number">{{ total_messages }}</div>
+        <div class="admin-stat-label">Messages ({{ unread_messages }} non lus)</div>
+    </div>
+</div>
+
+<!-- Recent Reviews -->
+<div class="admin-table-wrapper">
+    <div class="admin-table-header">
+        <h2>Derniers avis</h2>
+        <a href="{% url 'core:admin_reviews' %}" class="admin-btn admin-btn-sm admin-btn-outline">Voir tout</a>
+    </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Client</th>
+                <th>Note</th>
+                <th>Commentaire</th>
+                <th>Statut</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in recent_reviews %}
+            <tr>
+                <td><strong>{{ review.name }}</strong></td>
+                <td class="admin-stars">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</td>
+                <td class="message-content">{{ review.comment|truncatewords:15 }}</td>
+                <td>
+                    {% if review.is_approved %}
+                    <span class="badge badge-green">Approuvé</span>
+                    {% else %}
+                    <span class="badge badge-yellow">En attente</span>
+                    {% endif %}
+                </td>
+                <td>{{ review.created_at|date:"d/m/Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="admin-empty"><p>Aucun avis pour le moment</p></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Recent Messages -->
+<div class="admin-table-wrapper">
+    <div class="admin-table-header">
+        <h2>Derniers messages</h2>
+        <a href="{% url 'core:admin_messages' %}" class="admin-btn admin-btn-sm admin-btn-outline">Voir tout</a>
+    </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Sujet</th>
+                <th>Statut</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for msg in recent_messages %}
+            <tr>
+                <td><strong>{{ msg.name }}</strong></td>
+                <td>{{ msg.email }}</td>
+                <td>{{ msg.subject }}</td>
+                <td>
+                    {% if msg.is_read %}
+                    <span class="badge badge-green">Lu</span>
+                    {% else %}
+                    <span class="badge badge-yellow">Non lu</span>
+                    {% endif %}
+                </td>
+                <td>{{ msg.created_at|date:"d/m/Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="admin-empty"><p>Aucun message pour le moment</p></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

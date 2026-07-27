@@ -1,0 +1,83 @@
+{% extends 'core/admin/base_admin.html' %}
+
+{% block title %}Voitures{% endblock %}
+
+{% block content %}
+<div class="admin-page-header" style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+        <h1>Gestion des voitures</h1>
+        <p>Ajouter, modifier ou supprimer les véhicules disponibles sur le site</p>
+    </div>
+    <a href="{% url 'core:admin_car_add' %}" class="admin-btn admin-btn-primary">
+        <i data-lucide="plus" style="width:18px;height:18px;"></i>
+        Ajouter une voiture
+    </a>
+</div>
+
+<div class="admin-table-wrapper">
+    <div class="admin-table-header">
+        <h2>Tous les véhicules ({{ all_cars|length }})</h2>
+    </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Véhicule</th>
+                <th>Catégorie</th>
+                <th>Prix / jour</th>
+                <th>Statut</th>
+                <th>Page d'accueil</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for car in all_cars %}
+            <tr>
+                <td>
+                    {% if car.get_image_url %}
+                    <img src="{{ car.get_image_url }}" alt="{{ car.name }}" class="car-image-thumb">
+                    {% else %}
+                    <div style="width:60px;height:40px;background:var(--admin-surface-2);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                        <i data-lucide="car" style="width:20px;height:20px;color:var(--admin-text-muted);"></i>
+                    </div>
+                    {% endif %}
+                </td>
+                <td><strong>{{ car.brand }} {{ car.name }}</strong></td>
+                <td>{{ car.get_category_display }}</td>
+                <td><strong>{{ car.price_per_day }} MAD</strong></td>
+                <td>
+                    {% if car.is_available %}
+                    <span class="badge badge-green">Disponible</span>
+                    {% else %}
+                    <span class="badge badge-red">Indisponible</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'core:admin_car_toggle_featured' car.id %}" class="badge {% if car.featured %}badge-blue{% else %}badge-yellow{% endif %}" style="cursor:pointer;text-decoration:none;" title="{% if car.featured %}Cliquer pour retirer de l'accueil{% else %}Cliquer pour afficher en accueil{% endif %}">
+                        {% if car.featured %}Affiché{% else %}Masqué{% endif %}
+                    </a>
+                </td>
+                <td>
+                    <div class="admin-actions">
+                        <a href="{% url 'core:admin_car_edit' car.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier">
+                            <i data-lucide="edit-2" style="width:14px;height:14px;"></i>
+                        </a>
+                        <a href="{% url 'core:admin_car_delete' car.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer {{ car.brand }} {{ car.name }} ?')">
+                            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="admin-empty">
+                    <i data-lucide="car" style="width:48px;height:48px;"></i>
+                    <p>Aucune voiture ajoutée pour le moment</p>
+                    <a href="{% url 'core:admin_car_add' %}" class="admin-btn admin-btn-primary" style="margin-top:16px;">Ajouter une voiture</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

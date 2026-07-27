@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="hero-bg-effects">
+        <div class="hero-circle hero-circle-1"></div>
+        <div class="hero-circle hero-circle-2"></div>
+    </div>
+    <div class="container">
+        <span class="section-badge">Notre Flotte</span>
+        <h1>Nos <span class="text-gradient">Véhicules</span></h1>
+        <p>Découvrez notre gamme complète de voitures disponibles à la location.</p>
+    </div>
+</section>
+
+<!-- Filter Bar -->
+<section class="section filter-section">
+    <div class="container">
+        <div class="filter-bar" data-animate="fade-up">
+            <a href="{% url 'core:cars' %}" class="filter-btn {% if not selected_category %}active{% endif %}">Tous</a>
+            {% for value, label in categories %}
+            <a href="{% url 'core:cars' %}?category={{ value }}" class="filter-btn {% if selected_category == value %}active{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Cars Grid -->
+<section class="section cars-grid-section">
+    <div class="container">
+        {% if vehicles %}
+        <div class="fleet-grid">
+            {% for car in vehicles %}
+            <div class="car-card" data-animate="fade-up" data-delay="{{ forloop.counter0|add:1 }}00">
+                {% if car.is_available %}
+                <div class="car-card-badge">Disponible</div>
+                {% endif %}
+                <div class="car-card-image">
+                    {% if car.image_url %}
+                    <img src="{{ car.image_url }}" alt="{{ car.brand }} {{ car.name }}">
+                    {% else %}
+                    <div class="car-card-placeholder">
+                        <i data-lucide="car" style="width:48px;height:48px;"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="car-card-body">
+                    <div class="car-card-category">{{ car.get_category_display }}</div>
+                    <h3>{{ car.brand }} {{ car.name }}</h3>
+                    <div class="car-card-specs">
+                        <span><i data-lucide="users" style="width:14px;height:14px;"></i> {{ car.seats }} places</span>
+                        <span><i data-lucide="fuel" style="width:14px;height:14px;"></i> {{ car.get_fuel_type_display }}</span>
+                        <span><i data-lucide="settings-2" style="width:14px;height:14px;"></i> {{ car.get_transmission_display }}</span>
+                    </div>
+                    {% if car.description %}
+                    <p class="car-card-desc">{{ car.description }}</p>
+                    {% endif %}
+                    <div class="car-card-footer">
+                        <div class="car-card-price">
+                            <span class="price-amount">{{ car.price_per_day|floatformat:0 }}</span>
+                            <span class="price-period">MAD / jour</span>
+                        </div>
+                        <a href="https://wa.me/212661395495?text=Bonjour, je souhaite réserver une {{ car.brand }} {{ car.name }}" class="btn btn-primary btn-sm" target="_blank">Réserver</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" data-animate="fade-up">
+            <i data-lucide="car" style="width:64px;height:64px;"></i>
+            <h3>Aucun véhicule trouvé</h3>
+            <p>Aucun véhicule n'est disponible dans cette catégorie pour le moment.</p>
+            <a href="{% url 'core:cars' %}" class="btn btn-primary">Voir tous les véhicules</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="section cta-section">
+    <div class="cta-bg-effects">
+        <div class="cta-circle cta-circle-1"></div>
+        <div class="cta-circle cta-circle-2"></div>
+    </div>
+    <div class="container cta-content" data-animate="fade-up">
+        <h2>Vous ne trouvez pas ce que vous cherchez ?</h2>
+        <p>Contactez-nous et nous trouverons le véhicule idéal pour vous.</p>
+        <div class="cta-actions">
+            <a href="tel:+212661395495" class="btn btn-white btn-lg">
+                <i data-lucide="phone" style="width:20px;height:20px;"></i>
+                Appelez-nous
+            </a>
+            <a href="{% url 'core:contact' %}" class="btn btn-outline-white btn-lg">
+                <i data-lucide="mail" style="width:20px;height:20px;"></i>
+                Formulaire de contact
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

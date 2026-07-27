@@ -1,0 +1,64 @@
+{% extends 'core/admin/base_admin.html' %}
+
+{% block title %}Avis clients{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <h1>Gestion des avis clients</h1>
+    <p>Approuvez ou supprimez les avis laissés par les clients</p>
+</div>
+
+<div class="admin-table-wrapper">
+    <div class="admin-table-header">
+        <h2>Tous les avis ({{ all_reviews|length }})</h2>
+    </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Client</th>
+                <th>Ville</th>
+                <th>Note</th>
+                <th>Commentaire</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in all_reviews %}
+            <tr>
+                <td><strong>{{ review.name }}</strong></td>
+                <td>{{ review.city|default:"—" }}</td>
+                <td class="admin-stars">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</td>
+                <td class="message-content">{{ review.comment|truncatewords:20 }}</td>
+                <td>
+                    {% if review.is_approved %}
+                    <span class="badge badge-green">Approuvé</span>
+                    {% else %}
+                    <span class="badge badge-yellow">En attente</span>
+                    {% endif %}
+                </td>
+                <td>{{ review.created_at|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <div class="admin-actions">
+                        <a href="{% url 'core:admin_review_approve' review.id %}" class="admin-btn admin-btn-sm {% if review.is_approved %}admin-btn-outline{% else %}admin-btn-green{% endif %}" title="{% if review.is_approved %}Masquer{% else %}Approuver{% endif %}">
+                            <i data-lucide="{% if review.is_approved %}eye-off{% else %}check{% endif %}" style="width:14px;height:14px;"></i>
+                        </a>
+                        <a href="{% url 'core:admin_review_delete' review.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer cet avis ?')">
+                            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="admin-empty">
+                    <i data-lucide="star" style="width:48px;height:48px;"></i>
+                    <p>Aucun avis client pour le moment</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header page-header-about">
+    <div class="hero-bg-effects">
+        <div class="hero-circle hero-circle-1"></div>
+        <div class="hero-circle hero-circle-2"></div>
+    </div>
+    <div class="container">
+        <span class="section-badge">Notre Histoire</span>
+        <h1>À Propos de <span class="text-gradient">SAOUD CAR</span></h1>
+        <p>Votre partenaire de confiance pour la location de voitures depuis Ben Slimane.</p>
+    </div>
+</section>
+
+<!-- About Content -->
+<section class="section about-content-section">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-text" data-animate="fade-right">
+                <h2>Une passion pour <span class="text-gradient">l'automobile</span></h2>
+                <p>Fondée à Ben Slimane, <strong>SAOUD CAR</strong> est née d'une passion pour l'automobile et d'un désir de rendre la mobilité accessible à tous. Depuis notre création, nous nous engageons à fournir un service de location de voitures de qualité supérieure.</p>
+                <p>Notre mission est simple : offrir à chaque client une expérience de conduite exceptionnelle à un prix abordable, avec un service personnalisé et attentionné.</p>
+                <p>Que ce soit pour un déplacement professionnel, des vacances en famille, ou un événement spécial, nous avons le véhicule qu'il vous faut.</p>
+            </div>
+            <div class="about-image" data-animate="fade-left">
+                <div class="about-image-wrapper">
+                    <div class="about-image-glow"></div>
+                    <img src="{% static 'core/images/sandero.png' %}" alt="SAOUD CAR Fleet">
+                    <div class="about-image-badge">
+                        <span class="about-badge-number">22+</span>
+                        <span>Années d'expérience</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section class="section values-section">
+    <div class="container">
+        <div class="section-header" data-animate="fade-up">
+            <span class="section-badge">Nos Valeurs</span>
+            <h2>Ce qui nous <span class="text-gradient">distingue</span></h2>
+        </div>
+        
+        <div class="values-grid">
+            <div class="value-card" data-animate="fade-up" data-delay="100">
+                <div class="value-number">01</div>
+                <div class="value-icon">
+                    <i data-lucide="heart" style="width:32px;height:32px;"></i>
+                </div>
+                <h3>Confiance</h3>
+                <p>Nous construisons des relations durables basées sur la transparence et l'honnêteté avec chaque client.</p>
+            </div>
+            
+            <div class="value-card" data-animate="fade-up" data-delay="200">
+                <div class="value-number">02</div>
+                <div class="value-icon">
+                    <i data-lucide="award" style="width:32px;height:32px;"></i>
+                </div>
+                <h3>Qualité</h3>
+                <p>Nos véhicules sont rigoureusement entretenus et régulièrement contrôlés pour garantir votre sécurité.</p>
+            </div>
+            
+            <div class="value-card" data-animate="fade-up" data-delay="300">
+                <div class="value-number">03</div>
+                <div class="value-icon">
+                    <i data-lucide="zap" style="width:32px;height:32px;"></i>
+                </div>
+                <h3>Réactivité</h3>
+                <p>Un service rapide et efficace, de la réservation à la restitution du véhicule.</p>
+            </div>
+            
+            <div class="value-card" data-animate="fade-up" data-delay="400">
+                <div class="value-number">04</div>
+                <div class="value-icon">
+                    <i data-lucide="smile" style="width:32px;height:32px;"></i>
+                </div>
+                <h3>Satisfaction</h3>
+                <p>Votre satisfaction est notre priorité absolue. Nous allons au-delà de vos attentes.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="section stats-section">
+    <div class="container">
+        <div class="stats-grid" data-animate="fade-up">
+            <div class="stat-item">
+                <div class="stat-number" data-count="1200">0</div>
+                <div class="stat-label">Clients Satisfaits</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="25">0</div>
+                <div class="stat-label">Véhicules</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="22">0</div>
+                <div class="stat-label">Années d'Expérience</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="365">0</div>
+                <div class="stat-label">Jours / An</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Location Section -->
+<section class="section location-section">
+    <div class="container">
+        <div class="section-header" data-animate="fade-up">
+            <span class="section-badge">Notre Emplacement</span>
+            <h2>Où nous <span class="text-gradient">trouver</span></h2>
+        </div>
+        
+        <div class="location-grid" data-animate="fade-up">
+            <div class="location-info">
+                <div class="location-item">
+                    <div class="location-icon">
+                        <i data-lucide="map-pin" style="width:24px;height:24px;"></i>
+                    </div>
+                    <div>
+                        <h4>Adresse</h4>
+                        <p>Hay Lalla Meriem, Bloc B N°185<br>Ben Slimane, Maroc</p>
+                    </div>
+                </div>
+                <div class="location-item">
+                    <div class="location-icon">
+                        <i data-lucide="phone" style="width:24px;height:24px;"></i>
+                    </div>
+                    <div>
+                        <h4>Téléphone</h4>
+                        <p>+212 661 395 495<br>+212 523 290 058</p>
+                    </div>
+                </div>
+                <div class="location-item">
+                    <div class="location-icon">
+                        <i data-lucide="mail" style="width:24px;height:24px;"></i>
+                    </div>
+                    <div>
+                        <h4>Email</h4>
+                        <p>souad88000@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+            <div class="location-map">
+                <iframe
+                    src="https://maps.google.com/maps?q=Saoud%20Car%20Location%20de%20voiture%20Benslimane&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                    width="100%"
+                    height="400"
+                    style="border:0; border-radius: 16px;"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="Localisation SAOUD CAR - Ben Slimane">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
