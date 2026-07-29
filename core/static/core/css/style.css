@@ -2100,13 +2100,8 @@ ul {
     .section-header h2 {
         font-size: 2rem;
     }
-}
 
-@media (max-width: 768px) {
-    :root {
-        --section-padding: 60px;
-    }
-
+    /* Move Navbar Mobile Layout to Tablet Breakpoint */
     .nav-menu {
         position: fixed;
         top: 0;
@@ -2148,6 +2143,39 @@ ul {
 
     .nav-cta {
         display: none;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 768px) {
+    :root {
+        --section-padding: 60px;
+    }
+
+    /* Mobile specific tweaks */
+    .nav-logo {
+        flex: none;
+    }
+    .logo-text-styler {
+        font-size: 1.1rem;
+    }
+    .site-logo {
+        max-height: 36px;
+    }
+    .nav-right {
+        gap: 8px;
+    }
+    .lang-switcher {
+        padding: 6px 8px;
+        gap: 6px;
+    }
+    .lang-btn {
+        padding: 2px 6px;
+        font-size: 0.7rem;
     }
 
     .hero {
@@ -2193,10 +2221,6 @@ ul {
 
     .page-header h1 {
         font-size: 2rem;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
     }
 
     .contact-form-wrapper {
