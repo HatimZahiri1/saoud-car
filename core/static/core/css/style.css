@@ -536,6 +536,11 @@ ul {
     padding-left: 12px;
 }
 
+.mobile-lang-wrapper {
+    display: none;
+}
+
+
 .lang-btn {
     font-size: 0.75rem;
     font-weight: 800;
@@ -2145,21 +2150,36 @@ ul {
         display: none;
     }
 
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-@media (max-width: 768px) {
-    :root {
-        --section-padding: 60px;
-    }
-
-    /* Mobile specific tweaks */
+    /* Mobile specific tweaks for tablet layout */
     .nav-logo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-left: 0;
+        z-index: 10;
         flex: none;
     }
+    
+    .lang-switcher-desktop {
+        display: none !important;
+    }
+    
+    .mobile-lang-wrapper {
+        display: block;
+        width: 100%;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .lang-switcher-mobile {
+        width: 100%;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 12px;
+    }
+
     .logo-text-styler {
         font-size: 1.1rem;
     }
@@ -2169,6 +2189,20 @@ ul {
     .nav-right {
         gap: 8px;
     }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+
+}
+
+@media (max-width: 768px) {
+    :root {
+        --section-padding: 60px;
+    }
+
+    /* Mobile specific tweaks */
     .lang-switcher {
         padding: 6px 8px;
         gap: 6px;

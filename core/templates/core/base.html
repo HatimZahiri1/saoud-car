@@ -39,10 +39,21 @@
                 <li><a href="{% url 'core:cars' %}" class="nav-link {% if request.resolver_match.url_name == 'cars' %}active{% endif %}">Véhicules</a></li>
                 <li><a href="{% url 'core:about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">À Propos</a></li>
                 <li><a href="{% url 'core:contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a></li>
+                
+                <li class="mobile-lang-wrapper">
+                    <div class="lang-switcher lang-switcher-mobile notranslate" translate="no">
+                        <i data-lucide="globe" class="lang-icon"></i>
+                        <div class="lang-buttons">
+                            <a href="#" onclick="doGTranslate('fr|fr');return false;" class="lang-btn" title="Français">FR</a>
+                            <a href="#" onclick="doGTranslate('fr|en');return false;" class="lang-btn" title="English">EN</a>
+                            <a href="#" onclick="doGTranslate('fr|ar');return false;" class="lang-btn" title="Arabic">AR</a>
+                        </div>
+                    </div>
+                </li>
             </ul>
             
             <div class="nav-right">
-                <div class="lang-switcher notranslate" translate="no">
+                <div class="lang-switcher lang-switcher-desktop notranslate" translate="no">
                     <i data-lucide="globe" class="lang-icon"></i>
                     <div class="lang-buttons">
                         <a href="#" onclick="doGTranslate('fr|fr');return false;" class="lang-btn" title="Français">FR</a>
