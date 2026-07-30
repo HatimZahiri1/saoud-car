@@ -81,8 +81,8 @@ WSGI_APPLICATION = 'saoudcar.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://postgres.xrgutopbmdqiximphzml:Zahiri%4012%40%40@aws-0-eu-west-1.pooler.supabase.com:5432/postgres',
+    'default': dj_database_url.parse(
+        'postgresql://postgres.xrgutopbmdqiximphzml:Zahiri%4012%40%40@aws-0-eu-west-1.pooler.supabase.com:5432/postgres',
         conn_max_age=600,
     )
 }
