@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import HttpResponse
 from django.utils import timezone
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, Avg
 from .models import (
     Car, ContactMessage, Review, Brand, Client,
     RentalContract, TechnicalInspection, Insurance
@@ -208,6 +208,50 @@ def admin_dashboard(request):
         expiry_date__lte=alert_date
     ).select_related('car')
 
+    # ========= NOUVEAUX GRAPHIQUES =========
+
+    # Répartition par type de carburant (Camembert)
+    fuel_labels = []
+    fuel_data = []
+    for code, label in [('essence', 'Essence'), ('diesel', 'Diesel'), ('hybride', 'Hybride')]:
+        count = Car.objects.filter(fuel_type=code).count()
+        if count > 0:
+            fuel_labels.append(label)
+            fuel_data.append(count)
+
+    # Répartition par transmission (Camembert)
+    trans_labels = []
+    trans_data = []
+    for code, label in [('manuelle', 'Manuelle'), ('automatique', 'Automatique')]:
+        count = Car.objects.filter(transmission=code).count()
+        if count > 0:
+            trans_labels.append(label)
+            trans_data.append(count)
+
+    # Voitures par catégorie (Bâtons)
+    cars_by_category_labels = []
+    cars_by_category_data = []
+    for code, label in Car.CATEGORY_CHOICES:
+        count = Car.objects.filter(category=code).count()
+        cars_by_category_labels.append(label)
+        cars_by_category_data.append(count)
+
+    # Revenus + Locations combinés (Double axe)
+    # On réutilise monthly_revenue_data et monthly_rentals_data
+
+    # Total contrats terminés
+    total_completed = RentalContract.objects.filter(status='termine').count()
+    total_contracts = RentalContract.objects.count()
+
+    # Taux d'occupation de la flotte
+    occupation_rate = round((total_cars - available_cars) / total_cars * 100, 1) if total_cars > 0 else 0
+
+    # Revenu moyen par contrat
+    avg_revenue = 0
+    if total_completed > 0:
+        avg_rev_qs = RentalContract.objects.filter(status='termine').aggregate(avg=Avg('total_amount'))
+        avg_revenue = float(avg_rev_qs['avg'] or 0)
+
     context = {
         'total_cars': total_cars,
         'available_cars': available_cars,
@@ -228,6 +272,17 @@ def admin_dashboard(request):
         'brand_revenue_data': json.dumps(brand_revenue_data),
         'fleet_status_labels': json.dumps(fleet_status_labels),
         'fleet_status_data': json.dumps(fleet_status_data),
+        # Nouvelles données
+        'fuel_labels': json.dumps(fuel_labels),
+        'fuel_data': json.dumps(fuel_data),
+        'trans_labels': json.dumps(trans_labels),
+        'trans_data': json.dumps(trans_data),
+        'cars_by_category_labels': json.dumps(cars_by_category_labels),
+        'cars_by_category_data': json.dumps(cars_by_category_data),
+        'total_completed': total_completed,
+        'total_contracts': total_contracts,
+        'occupation_rate': occupation_rate,
+        'avg_revenue': avg_revenue,
         'top_cars': top_cars,
         'expiring_inspections': expiring_inspections,
         'expiring_insurances': expiring_insurances,
@@ -353,7 +408,11 @@ def admin_car_toggle_featured(request, car_id):
 
 def admin_brands(request):
     """Liste des marques."""
-    all_brands = Brand.objects.all()
+    all_brands = Brand.objects.annotate(
+        total_cars=Count('cars'),
+        available_count=Count('cars', filter=Q(cars__is_available=True)),
+        rented_count=Count('cars', filter=Q(cars__is_available=False))
+    ).all()
     context = {'all_brands': all_brands}
     return render(request, 'core/admin/brands_list.html', context)
 

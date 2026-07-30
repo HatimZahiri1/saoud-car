@@ -32,9 +32,9 @@
 </div>
 {% endif %}
 
-<!-- Stats Cards -->
+<!-- Stats Cards Row 1 -->
 <div class="admin-stats">
-    <div class="admin-stat-card">
+    <div class="admin-stat-card" style="background:linear-gradient(135deg,#fff5f5,#fff);border-left:4px solid #E53935;">
         <div class="admin-stat-header">
             <div class="admin-stat-icon red"><i data-lucide="car"></i></div>
         </div>
@@ -42,7 +42,7 @@
         <div class="admin-stat-label">Voitures ({{ available_cars }} disponibles)</div>
     </div>
     
-    <div class="admin-stat-card">
+    <div class="admin-stat-card" style="background:linear-gradient(135deg,#f0f4ff,#fff);border-left:4px solid #2979FF;">
         <div class="admin-stat-header">
             <div class="admin-stat-icon blue"><i data-lucide="users"></i></div>
         </div>
@@ -50,7 +50,7 @@
         <div class="admin-stat-label">Clients enregistrés</div>
     </div>
     
-    <div class="admin-stat-card">
+    <div class="admin-stat-card" style="background:linear-gradient(135deg,#f0fff4,#fff);border-left:4px solid #00C853;">
         <div class="admin-stat-header">
             <div class="admin-stat-icon green"><i data-lucide="file-text"></i></div>
         </div>
@@ -58,7 +58,7 @@
         <div class="admin-stat-label">Contrats en cours</div>
     </div>
     
-    <div class="admin-stat-card">
+    <div class="admin-stat-card" style="background:linear-gradient(135deg,#fffcf0,#fff);border-left:4px solid #FFB300;">
         <div class="admin-stat-header">
             <div class="admin-stat-icon yellow"><i data-lucide="banknote"></i></div>
         </div>
@@ -67,74 +67,159 @@
     </div>
 </div>
 
-<!-- Charts Row -->
-<div class="admin-charts-row">
-    <div class="admin-chart-card">
-        <div class="admin-chart-header">
-            <h3>Revenus Mensuels (MAD)</h3>
+<!-- Stats Cards Row 2 -->
+<div class="admin-stats" style="margin-top:8px;">
+    <div class="admin-stat-card" style="background:linear-gradient(135deg,#fdf2f8,#fff);border-left:4px solid #EC407A;">
+        <div class="admin-stat-header">
+            <div class="admin-stat-icon" style="background:rgba(236,64,122,0.1);color:#EC407A;"><i data-lucide="percent"></i></div>
         </div>
-        <div class="admin-chart-body">
+        <div class="admin-stat-number">{{ occupation_rate }}%</div>
+        <div class="admin-stat-label">Taux d'occupation</div>
+    </div>
+
+    <div class="admin-stat-card" style="background:linear-gradient(135deg,#f3e5f5,#fff);border-left:4px solid #AB47BC;">
+        <div class="admin-stat-header">
+            <div class="admin-stat-icon" style="background:rgba(171,71,188,0.1);color:#AB47BC;"><i data-lucide="calculator"></i></div>
+        </div>
+        <div class="admin-stat-number">{{ avg_revenue|floatformat:0 }}</div>
+        <div class="admin-stat-label">Revenu moyen/contrat (MAD)</div>
+    </div>
+
+    <div class="admin-stat-card" style="background:linear-gradient(135deg,#fff3e0,#fff);border-left:4px solid #FF7043;">
+        <div class="admin-stat-header">
+            <div class="admin-stat-icon yellow"><i data-lucide="star"></i></div>
+        </div>
+        <div class="admin-stat-number">{{ total_reviews }}</div>
+        <div class="admin-stat-label">Avis ({{ pending_reviews }} en attente)</div>
+    </div>
+    
+    <div class="admin-stat-card" style="background:linear-gradient(135deg,#e3f2fd,#fff);border-left:4px solid #42A5F5;">
+        <div class="admin-stat-header">
+            <div class="admin-stat-icon blue"><i data-lucide="mail"></i></div>
+        </div>
+        <div class="admin-stat-number">{{ total_messages }}</div>
+        <div class="admin-stat-label">Messages ({{ unread_messages }} non lus)</div>
+    </div>
+</div>
+
+<!-- Charts Row 1: Revenue Bar + Category Doughnut -->
+<div class="admin-charts-row" style="margin-top:24px;">
+    <div class="admin-chart-card" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <div class="admin-chart-header" style="padding:20px 24px 8px;">
+            <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;">📊 Revenus Mensuels (MAD)</h3>
+        </div>
+        <div class="admin-chart-body" style="padding:8px 16px 16px;">
             <canvas id="revenueChart"></canvas>
         </div>
     </div>
-    <div class="admin-chart-card admin-chart-small">
-        <div class="admin-chart-header">
-            <h3>Locations par Catégorie</h3>
+    <div class="admin-chart-card admin-chart-small" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <div class="admin-chart-header" style="padding:20px 24px 8px;">
+            <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;">🏷️ Locations par Catégorie</h3>
         </div>
-        <div class="admin-chart-body">
+        <div class="admin-chart-body" style="padding:8px 16px 16px;">
             <canvas id="categoryChart"></canvas>
         </div>
     </div>
 </div>
 
-<div class="admin-charts-row" style="margin-top: 24px;">
-    <div class="admin-chart-card">
-        <div class="admin-chart-header">
-            <h3>Évolution des Locations (12 mois)</h3>
+<!-- Charts Row 2: Rentals Line + Fleet Status -->
+<div class="admin-charts-row" style="margin-top:24px;">
+    <div class="admin-chart-card" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <div class="admin-chart-header" style="padding:20px 24px 8px;">
+            <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;">📈 Évolution des Locations (12 mois)</h3>
         </div>
-        <div class="admin-chart-body">
+        <div class="admin-chart-body" style="padding:8px 16px 16px;">
             <canvas id="rentalsChart"></canvas>
         </div>
     </div>
-    <div class="admin-chart-card admin-chart-small">
-        <div class="admin-chart-header">
-            <h3>Statut de la Flotte</h3>
+    <div class="admin-chart-card admin-chart-small" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <div class="admin-chart-header" style="padding:20px 24px 8px;">
+            <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;">🚗 Statut de la Flotte</h3>
         </div>
-        <div class="admin-chart-body">
+        <div class="admin-chart-body" style="padding:8px 16px 16px;">
             <canvas id="fleetChart"></canvas>
         </div>
     </div>
 </div>
 
-<div class="admin-charts-row" style="margin-top: 24px;">
-    <div class="admin-chart-card">
-        <div class="admin-chart-header">
-            <h3>Top 5 Revenus par Marque (MAD)</h3>
+<!-- Charts Row 3: Brand Revenue + Cars by Category -->
+<div class="admin-charts-row" style="margin-top:24px;">
+    <div class="admin-chart-card" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <div class="admin-chart-header" style="padding:20px 24px 8px;">
+            <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;">💰 Top 5 Revenus par Marque (MAD)</h3>
         </div>
-        <div class="admin-chart-body">
+        <div class="admin-chart-body" style="padding:8px 16px 16px;">
             <canvas id="brandChart"></canvas>
+        </div>
+    </div>
+    <div class="admin-chart-card admin-chart-small" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <div class="admin-chart-header" style="padding:20px 24px 8px;">
+            <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;">📦 Véhicules par Catégorie</h3>
+        </div>
+        <div class="admin-chart-body" style="padding:8px 16px 16px;">
+            <canvas id="carsCategoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 4: Fuel Type + Transmission -->
+<div class="admin-charts-row" style="margin-top:24px;">
+    <div class="admin-chart-card admin-chart-small" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <div class="admin-chart-header" style="padding:20px 24px 8px;">
+            <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;">⛽ Type de Carburant</h3>
+        </div>
+        <div class="admin-chart-body" style="padding:8px 16px 16px;">
+            <canvas id="fuelChart"></canvas>
+        </div>
+    </div>
+    <div class="admin-chart-card admin-chart-small" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <div class="admin-chart-header" style="padding:20px 24px 8px;">
+            <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;">⚙️ Type de Transmission</h3>
+        </div>
+        <div class="admin-chart-body" style="padding:8px 16px 16px;">
+            <canvas id="transChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 5: Revenue + Rentals Combined -->
+<div class="admin-charts-row" style="margin-top:24px;">
+    <div class="admin-chart-card" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <div class="admin-chart-header" style="padding:20px 24px 8px;">
+            <h3 style="font-size:1rem;font-weight:700;color:#1a1a2e;">📊 Revenus vs Locations (Comparaison)</h3>
+        </div>
+        <div class="admin-chart-body" style="padding:8px 16px 16px;">
+            <canvas id="combinedChart"></canvas>
         </div>
     </div>
 </div>
 
 <!-- Revenue + Top Cars Row -->
-<div class="admin-info-row">
-    <div class="admin-info-card">
+<div class="admin-info-row" style="margin-top:24px;">
+    <div class="admin-info-card" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
         <div class="admin-info-header">
             <h3>💰 Résumé Financier</h3>
         </div>
         <div class="admin-info-body">
             <div class="revenue-item">
                 <span>Revenus du mois</span>
-                <strong>{{ month_revenue|floatformat:0 }} MAD</strong>
+                <strong style="color:#E53935;">{{ month_revenue|floatformat:0 }} MAD</strong>
             </div>
             <div class="revenue-item">
                 <span>Revenus de l'année {{ current_year }}</span>
-                <strong>{{ year_revenue|floatformat:0 }} MAD</strong>
+                <strong style="color:#2979FF;">{{ year_revenue|floatformat:0 }} MAD</strong>
+            </div>
+            <div class="revenue-item">
+                <span>Total contrats terminés</span>
+                <strong style="color:#00C853;">{{ total_completed }}</strong>
+            </div>
+            <div class="revenue-item">
+                <span>Total contrats</span>
+                <strong>{{ total_contracts }}</strong>
             </div>
         </div>
     </div>
-    <div class="admin-info-card">
+    <div class="admin-info-card" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
         <div class="admin-info-header">
             <h3>🏆 Top Véhicules Loués</h3>
         </div>
@@ -151,27 +236,8 @@
     </div>
 </div>
 
-<!-- Quick Stats Row -->
-<div class="admin-stats" style="margin-top: 8px;">
-    <div class="admin-stat-card">
-        <div class="admin-stat-header">
-            <div class="admin-stat-icon yellow"><i data-lucide="star"></i></div>
-        </div>
-        <div class="admin-stat-number">{{ total_reviews }}</div>
-        <div class="admin-stat-label">Avis clients ({{ pending_reviews }} en attente)</div>
-    </div>
-    
-    <div class="admin-stat-card">
-        <div class="admin-stat-header">
-            <div class="admin-stat-icon blue"><i data-lucide="mail"></i></div>
-        </div>
-        <div class="admin-stat-number">{{ total_messages }}</div>
-        <div class="admin-stat-label">Messages ({{ unread_messages }} non lus)</div>
-    </div>
-</div>
-
 <!-- Recent Reviews -->
-<div class="admin-table-wrapper">
+<div class="admin-table-wrapper" style="margin-top:24px;">
     <div class="admin-table-header">
         <h2>Derniers avis</h2>
         <a href="{% url 'core:admin_reviews' %}" class="admin-btn admin-btn-sm admin-btn-outline">Voir tout</a>
@@ -250,9 +316,28 @@
 {% block extra_scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Revenue Chart
+
+    const chartColors = {
+        red: '#E53935',
+        blue: '#2979FF',
+        green: '#00E676',
+        yellow: '#FFD740',
+        orange: '#FF7043',
+        purple: '#AB47BC',
+        pink: '#EC407A',
+        teal: '#26A69A',
+        indigo: '#5C6BC0',
+        cyan: '#00BCD4',
+    };
+    const gradientColors = [chartColors.red, chartColors.blue, chartColors.green, chartColors.yellow, chartColors.orange, chartColors.purple, chartColors.pink, chartColors.teal];
+
+    // 1. Revenue Chart (Bar with gradient)
     const revenueCtx = document.getElementById('revenueChart');
     if (revenueCtx) {
+        const ctx = revenueCtx.getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(229, 57, 53, 0.3)');
+        gradient.addColorStop(1, 'rgba(229, 57, 53, 0.02)');
         new Chart(revenueCtx, {
             type: 'bar',
             data: {
@@ -260,35 +345,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Revenus (MAD)',
                     data: {{ monthly_revenue_data|safe }},
-                    backgroundColor: 'rgba(229, 57, 53, 0.2)',
-                    borderColor: '#E53935',
+                    backgroundColor: gradient,
+                    borderColor: chartColors.red,
                     borderWidth: 2,
-                    borderRadius: 8,
+                    borderRadius: 10,
                     borderSkipped: false,
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { callback: v => v.toLocaleString() + ' MAD' },
-                        grid: { color: 'rgba(0,0,0,0.05)' }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { maxRotation: 45 }
-                    }
+                    y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() + ' MAD' }, grid: { color: 'rgba(0,0,0,0.04)' } },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45 } }
                 }
             }
         });
     }
 
-    // Category Chart
+    // 2. Category Chart (Doughnut)
     const categoryCtx = document.getElementById('categoryChart');
     if (categoryCtx) {
         const catLabels = {{ category_labels|safe }};
@@ -300,47 +376,47 @@ document.addEventListener('DOMContentLoaded', function() {
                     labels: catLabels,
                     datasets: [{
                         data: catData,
-                        backgroundColor: ['#E53935', '#2979FF', '#00E676', '#FFD740'],
+                        backgroundColor: [chartColors.red, chartColors.blue, chartColors.green, chartColors.yellow, chartColors.orange],
                         borderWidth: 0,
-                        hoverOffset: 8,
+                        hoverOffset: 12,
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { padding: 16, usePointStyle: true }
-                        }
-                    },
-                    cutout: '65%',
+                    plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 12 } } } },
+                    cutout: '68%',
                 }
             });
         } else {
-            categoryCtx.parentElement.innerHTML = '<p style="text-align:center;color:#757575;padding:40px;">Aucune donnée de location</p>';
+            categoryCtx.parentElement.innerHTML = '<p style="text-align:center;color:#999;padding:40px;">Aucune donnée</p>';
         }
     }
 
-    // Rentals Evolution Chart (Line)
+    // 3. Rentals Evolution Chart (Line with area)
     const rentalsCtx = document.getElementById('rentalsChart');
     if (rentalsCtx) {
+        const ctx3 = rentalsCtx.getContext('2d');
+        const grad3 = ctx3.createLinearGradient(0, 0, 0, 300);
+        grad3.addColorStop(0, 'rgba(41, 121, 255, 0.2)');
+        grad3.addColorStop(1, 'rgba(41, 121, 255, 0.01)');
         new Chart(rentalsCtx, {
             type: 'line',
             data: {
                 labels: {{ monthly_labels|safe }},
                 datasets: [{
-                    label: 'Nombre de Locations',
+                    label: 'Locations',
                     data: {{ monthly_rentals_data|safe }},
-                    backgroundColor: 'rgba(41, 121, 255, 0.1)',
-                    borderColor: '#2979FF',
-                    borderWidth: 2,
+                    backgroundColor: grad3,
+                    borderColor: chartColors.blue,
+                    borderWidth: 3,
                     fill: true,
                     tension: 0.4,
                     pointBackgroundColor: '#fff',
-                    pointBorderColor: '#2979FF',
+                    pointBorderColor: chartColors.blue,
                     pointBorderWidth: 2,
-                    pointRadius: 4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
                 }]
             },
             options: {
@@ -348,14 +424,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { precision: 0 } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { precision: 0 } },
                     x: { grid: { display: false }, ticks: { maxRotation: 45 } }
                 }
             }
         });
     }
 
-    // Brand Revenue Chart (Bar)
+    // 4. Fleet Status (Doughnut)
+    const fleetCtx = document.getElementById('fleetChart');
+    if (fleetCtx) {
+        new Chart(fleetCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ fleet_status_labels|safe }},
+                datasets: [{
+                    data: {{ fleet_status_data|safe }},
+                    backgroundColor: [chartColors.green, chartColors.yellow],
+                    borderWidth: 0,
+                    hoverOffset: 12,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 12 } } } },
+                cutout: '72%',
+            }
+        });
+    }
+
+    // 5. Brand Revenue (Horizontal Bar)
     const brandCtx = document.getElementById('brandChart');
     if (brandCtx) {
         const bLabels = {{ brand_revenue_labels|safe }};
@@ -366,53 +465,186 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: {
                     labels: bLabels,
                     datasets: [{
-                        label: 'Revenus par Marque (MAD)',
+                        label: 'Revenus (MAD)',
                         data: bData,
-                        backgroundColor: 'rgba(0, 230, 118, 0.2)',
-                        borderColor: '#00E676',
+                        backgroundColor: gradientColors.slice(0, bData.length).map(c => c + '33'),
+                        borderColor: gradientColors.slice(0, bData.length),
                         borderWidth: 2,
-                        borderRadius: 8,
+                        borderRadius: 10,
                     }]
                 },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { callback: v => v.toLocaleString() + ' MAD' } },
-                        x: { grid: { display: false } }
+                        x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v.toLocaleString() + ' MAD' } },
+                        y: { grid: { display: false } }
                     }
                 }
             });
         } else {
-            brandCtx.parentElement.innerHTML = '<p style="text-align:center;color:#757575;padding:40px;">Aucune donnée de revenus</p>';
+            brandCtx.parentElement.innerHTML = '<p style="text-align:center;color:#999;padding:40px;">Aucune donnée</p>';
         }
     }
 
-    // Fleet Status Chart (Doughnut)
-    const fleetCtx = document.getElementById('fleetChart');
-    if (fleetCtx) {
-        new Chart(fleetCtx, {
-            type: 'doughnut',
+    // 6. Cars by Category (Bar)
+    const carsCatCtx = document.getElementById('carsCategoryChart');
+    if (carsCatCtx) {
+        new Chart(carsCatCtx, {
+            type: 'bar',
             data: {
-                labels: {{ fleet_status_labels|safe }},
+                labels: {{ cars_by_category_labels|safe }},
                 datasets: [{
-                    data: {{ fleet_status_data|safe }},
-                    backgroundColor: ['#00E676', '#FFD740'],
-                    borderWidth: 0,
-                    hoverOffset: 8,
+                    label: 'Véhicules',
+                    data: {{ cars_by_category_data|safe }},
+                    backgroundColor: [chartColors.red + '33', chartColors.blue + '33', chartColors.purple + '33', chartColors.orange + '33'],
+                    borderColor: [chartColors.red, chartColors.blue, chartColors.purple, chartColors.orange],
+                    borderWidth: 2,
+                    borderRadius: 10,
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } }
-                },
-                cutout: '75%',
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { precision: 0 } },
+                    x: { grid: { display: false } }
+                }
             }
         });
     }
+
+    // 7. Fuel Type (Polar Area)
+    const fuelCtx = document.getElementById('fuelChart');
+    if (fuelCtx) {
+        const fLabels = {{ fuel_labels|safe }};
+        const fData = {{ fuel_data|safe }};
+        if (fData.length > 0) {
+            new Chart(fuelCtx, {
+                type: 'polarArea',
+                data: {
+                    labels: fLabels,
+                    datasets: [{
+                        data: fData,
+                        backgroundColor: [chartColors.orange + '66', chartColors.indigo + '66', chartColors.teal + '66'],
+                        borderColor: [chartColors.orange, chartColors.indigo, chartColors.teal],
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 12 } } } },
+                }
+            });
+        } else {
+            fuelCtx.parentElement.innerHTML = '<p style="text-align:center;color:#999;padding:40px;">Aucune donnée</p>';
+        }
+    }
+
+    // 8. Transmission Type (Doughnut)
+    const transCtx = document.getElementById('transChart');
+    if (transCtx) {
+        const tLabels = {{ trans_labels|safe }};
+        const tData = {{ trans_data|safe }};
+        if (tData.length > 0) {
+            new Chart(transCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: tLabels,
+                    datasets: [{
+                        data: tData,
+                        backgroundColor: [chartColors.cyan + '88', chartColors.pink + '88'],
+                        borderColor: [chartColors.cyan, chartColors.pink],
+                        borderWidth: 2,
+                        hoverOffset: 12,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 12 } } } },
+                    cutout: '60%',
+                }
+            });
+        } else {
+            transCtx.parentElement.innerHTML = '<p style="text-align:center;color:#999;padding:40px;">Aucune donnée</p>';
+        }
+    }
+
+    // 9. Combined Revenue vs Rentals (Mixed Chart)
+    const combinedCtx = document.getElementById('combinedChart');
+    if (combinedCtx) {
+        const ctx9 = combinedCtx.getContext('2d');
+        const grad9 = ctx9.createLinearGradient(0, 0, 0, 300);
+        grad9.addColorStop(0, 'rgba(229, 57, 53, 0.15)');
+        grad9.addColorStop(1, 'rgba(229, 57, 53, 0.01)');
+        new Chart(combinedCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ monthly_labels|safe }},
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'Revenus (MAD)',
+                        data: {{ monthly_revenue_data|safe }},
+                        backgroundColor: grad9,
+                        borderColor: chartColors.red,
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        yAxisID: 'y',
+                        order: 2,
+                    },
+                    {
+                        type: 'line',
+                        label: 'Nb. Locations',
+                        data: {{ monthly_rentals_data|safe }},
+                        borderColor: chartColors.blue,
+                        backgroundColor: 'transparent',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: chartColors.blue,
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        yAxisID: 'y1',
+                        order: 1,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top', labels: { padding: 20, usePointStyle: true, font: { size: 12 } } }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        beginAtZero: true,
+                        ticks: { callback: v => v.toLocaleString() + ' MAD', color: chartColors.red },
+                        grid: { color: 'rgba(0,0,0,0.04)' },
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        beginAtZero: true,
+                        ticks: { precision: 0, color: chartColors.blue },
+                        grid: { drawOnChartArea: false },
+                    },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45 } }
+                }
+            }
+        });
+    }
+
 });
 </script>
 {% endblock %}

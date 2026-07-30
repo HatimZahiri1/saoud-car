@@ -9,49 +9,77 @@
     <a href="{% url 'core:admin_brand_add' %}" class="admin-btn admin-btn-primary"><i data-lucide="plus" style="width:16px;height:16px;"></i> Nouvelle marque</a>
 </div>
 
-<div class="admin-table-wrapper">
-    <table class="admin-table">
-        <thead>
-            <tr>
-                <th>Logo</th>
-                <th>Nom</th>
-                <th>Pays</th>
-                <th>Véhicules</th>
-                <th>Modèles</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for brand in all_brands %}
-            <tr>
-                <td>
-                    {% if brand.logo %}
-                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="car-image-thumb" style="width:48px;height:48px;object-fit:contain;border-radius:8px;background:#f5f5f5;padding:4px;">
+<!-- Brand Cards Grid -->
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;margin-bottom:32px;">
+    {% for brand in all_brands %}
+    <div style="background:#fff;border-radius:16px;border:1px solid #f0f0f0;overflow:hidden;transition:all 0.3s ease;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+        <!-- Brand Header -->
+        <div style="display:flex;align-items:center;gap:16px;padding:20px 20px 16px;">
+            {% if brand.logo %}
+            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" style="width:56px;height:56px;object-fit:contain;border-radius:12px;background:#f8f8f8;padding:6px;flex-shrink:0;">
+            {% else %}
+            <div style="width:56px;height:56px;background:linear-gradient(135deg,#f5f5f5,#e8e8e8);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-lucide="tag" style="width:24px;height:24px;color:#bdbdbd;"></i>
+            </div>
+            {% endif %}
+            <div style="flex:1;min-width:0;">
+                <h3 style="margin:0;font-size:1.15rem;font-weight:700;color:#1a1a2e;">{{ brand.name }}</h3>
+                <p style="margin:4px 0 0;font-size:0.85rem;color:#757575;">{{ brand.country|default:"Pays non spécifié" }}</p>
+            </div>
+            <div class="admin-actions" style="flex-shrink:0;">
+                <a href="{% url 'core:admin_brand_edit' brand.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
+                <a href="{% url 'core:admin_brand_delete' brand.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer cette marque ?');"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></a>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div style="display:flex;gap:0;border-top:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0;">
+            <div style="flex:1;text-align:center;padding:14px 12px;border-right:1px solid #f0f0f0;">
+                <div style="font-size:1.5rem;font-weight:800;color:#E53935;">{{ brand.total_cars }}</div>
+                <div style="font-size:0.75rem;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">Total</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:14px 12px;border-right:1px solid #f0f0f0;">
+                <div style="font-size:1.5rem;font-weight:800;color:#00C853;">{{ brand.available_count }}</div>
+                <div style="font-size:0.75rem;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">Disponibles</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:14px 12px;">
+                <div style="font-size:1.5rem;font-weight:800;color:#FFB300;">{{ brand.rented_count }}</div>
+                <div style="font-size:0.75rem;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">En location</div>
+            </div>
+        </div>
+
+        <!-- Models List -->
+        <div style="padding:14px 20px 18px;">
+            <div style="font-size:0.8rem;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Modèles</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                {% for c in brand.cars.all %}
+                <span style="background:linear-gradient(135deg,#f8f9fa,#e9ecef);color:#333;font-size:0.8rem;padding:4px 12px;border-radius:20px;font-weight:500;white-space:nowrap;">
+                    {{ c.name }}
+                    {% if c.is_available %}
+                    <span style="display:inline-block;width:6px;height:6px;background:#00C853;border-radius:50%;margin-left:4px;vertical-align:middle;"></span>
                     {% else %}
-                    <div style="width:48px;height:48px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;"><i data-lucide="tag" style="width:20px;height:20px;color:#bdbdbd;"></i></div>
+                    <span style="display:inline-block;width:6px;height:6px;background:#FFB300;border-radius:50%;margin-left:4px;vertical-align:middle;"></span>
                     {% endif %}
-                </td>
-                <td><strong>{{ brand.name }}</strong></td>
-                <td>{{ brand.country|default:"—" }}</td>
-                <td><span class="badge badge-blue">{{ brand.car_count }}</span></td>
-                <td>
-                    {% for c in brand.cars.all %}
-                        <span class="badge" style="background:#eee;color:#333;margin-bottom:4px;display:inline-block;font-size:0.8rem;padding:2px 8px;">{{ c.name }}</span>
-                    {% empty %}
-                        <span style="color:#aaa;font-size:0.85rem;">Aucun modèle</span>
-                    {% endfor %}
-                </td>
-                <td>
-                    <div class="admin-actions">
-                        <a href="{% url 'core:admin_brand_edit' brand.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
-                        <a href="{% url 'core:admin_brand_delete' brand.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer cette marque ?');"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></a>
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="6" class="admin-empty"><p>Aucune marque enregistrée</p></td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </span>
+                {% empty %}
+                <span style="color:#bbb;font-size:0.85rem;font-style:italic;">Aucun modèle enregistré</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div style="grid-column:1/-1;text-align:center;padding:60px 20px;">
+        <i data-lucide="tag" style="width:48px;height:48px;color:#ddd;margin-bottom:16px;"></i>
+        <p style="color:#999;font-size:1rem;">Aucune marque enregistrée</p>
+        <a href="{% url 'core:admin_brand_add' %}" class="admin-btn admin-btn-primary" style="margin-top:16px;">Ajouter une marque</a>
+    </div>
+    {% endfor %}
+</div>
+
+<div style="display:flex;gap:8px;align-items:center;padding:12px 16px;background:#f8f9fa;border-radius:10px;margin-bottom:24px;">
+    <span style="display:inline-block;width:8px;height:8px;background:#00C853;border-radius:50%;"></span>
+    <span style="font-size:0.8rem;color:#666;">Disponible</span>
+    <span style="display:inline-block;width:8px;height:8px;background:#FFB300;border-radius:50%;margin-left:12px;"></span>
+    <span style="font-size:0.8rem;color:#666;">En location</span>
 </div>
 {% endblock %}
