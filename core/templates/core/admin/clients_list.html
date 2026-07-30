@@ -1,0 +1,45 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+<div class="admin-page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1>Clients</h1>
+        <p>Gérer les clients de l'agence</p>
+    </div>
+    <a href="{% url 'core:admin_client_add' %}" class="admin-btn admin-btn-primary"><i data-lucide="plus" style="width:16px;height:16px;"></i> Nouveau client</a>
+</div>
+
+<div class="admin-table-wrapper">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Nom complet</th>
+                <th>CIN</th>
+                <th>Téléphone</th>
+                <th>Ville</th>
+                <th>Locations</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in all_clients %}
+            <tr>
+                <td><strong>{{ client.full_name }}</strong></td>
+                <td>{{ client.cin }}</td>
+                <td>{{ client.phone }}</td>
+                <td>{{ client.city|default:"—" }}</td>
+                <td><span class="badge badge-blue">{{ client.total_rentals }}</span></td>
+                <td>
+                    <div class="admin-actions">
+                        <a href="{% url 'core:admin_client_edit' client.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
+                        <a href="{% url 'core:admin_client_delete' client.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer ce client ?');"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="admin-empty"><p>Aucun client enregistré</p></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

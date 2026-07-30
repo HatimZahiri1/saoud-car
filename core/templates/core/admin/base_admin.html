@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dashboard{% endblock %} — SAOUD CAR Admin</title>
     <link rel="icon" type="image/jpeg" href="{% static 'core/images/logo.jpg' %}">
-    <link rel="stylesheet" href="{% static 'core/css/admin.css' %}?v=1.4">
+    <link rel="stylesheet" href="{% static 'core/css/admin.css' %}?v=2.0">
     <script src="https://unpkg.com/lucide@latest"></script>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
 
-<!-- Mobile Header (Visible only on small screens) -->
+<!-- Mobile Header -->
 <div class="admin-mobile-header">
     <div class="sidebar-logo">
         <img src="{% static 'core/images/logo.jpg' %}" alt="SAOUD CAR Logo" class="sidebar-logo-img" style="width: 36px; height: 36px;">
@@ -44,31 +45,55 @@
     </div>
 
     <nav class="sidebar-nav">
-        <div class="sidebar-nav-label">Menu principal</div>
+        <div class="sidebar-nav-label">Tableau de bord</div>
         <a href="{% url 'core:admin_dashboard' %}" class="sidebar-nav-item {% if active_page == 'dashboard' %}active{% endif %}">
             <i data-lucide="layout-dashboard"></i>
             <span>Dashboard</span>
         </a>
+
+        <div class="sidebar-nav-label" style="margin-top: 20px;">Gestion du parc</div>
         <a href="{% url 'core:admin_cars' %}" class="sidebar-nav-item {% if active_page == 'cars' %}active{% endif %}">
             <i data-lucide="car"></i>
             <span>Voitures</span>
         </a>
+        <a href="{% url 'core:admin_brands' %}" class="sidebar-nav-item {% if active_page == 'brands' %}active{% endif %}">
+            <i data-lucide="tag"></i>
+            <span>Marques</span>
+        </a>
+        <a href="{% url 'core:admin_inspections' %}" class="sidebar-nav-item {% if active_page == 'inspections' %}active{% endif %}">
+            <i data-lucide="wrench"></i>
+            <span>Visites techniques</span>
+        </a>
+        <a href="{% url 'core:admin_insurances' %}" class="sidebar-nav-item {% if active_page == 'insurances' %}active{% endif %}">
+            <i data-lucide="shield-check"></i>
+            <span>Assurances</span>
+            {% if alerts_count %}<span class="sidebar-nav-badge">{{ alerts_count }}</span>{% endif %}
+        </a>
+
+        <div class="sidebar-nav-label" style="margin-top: 20px;">Location</div>
+        <a href="{% url 'core:admin_clients' %}" class="sidebar-nav-item {% if active_page == 'clients' %}active{% endif %}">
+            <i data-lucide="users"></i>
+            <span>Clients</span>
+        </a>
+        <a href="{% url 'core:admin_contracts' %}" class="sidebar-nav-item {% if active_page == 'contracts' %}active{% endif %}">
+            <i data-lucide="file-text"></i>
+            <span>Contrats</span>
+            {% if active_contracts_count %}<span class="sidebar-nav-badge" style="background: var(--admin-blue);">{{ active_contracts_count }}</span>{% endif %}
+        </a>
+
+        <div class="sidebar-nav-label" style="margin-top: 20px;">Communication</div>
         <a href="{% url 'core:admin_reviews' %}" class="sidebar-nav-item {% if active_page == 'reviews' %}active{% endif %}">
             <i data-lucide="star"></i>
             <span>Avis clients</span>
-            {% if pending_reviews_count %}
-            <span class="sidebar-nav-badge">{{ pending_reviews_count }}</span>
-            {% endif %}
+            {% if pending_reviews_count %}<span class="sidebar-nav-badge">{{ pending_reviews_count }}</span>{% endif %}
         </a>
         <a href="{% url 'core:admin_messages' %}" class="sidebar-nav-item {% if active_page == 'messages' %}active{% endif %}">
             <i data-lucide="mail"></i>
             <span>Messages</span>
-            {% if unread_messages_count %}
-            <span class="sidebar-nav-badge">{{ unread_messages_count }}</span>
-            {% endif %}
+            {% if unread_messages_count %}<span class="sidebar-nav-badge">{{ unread_messages_count }}</span>{% endif %}
         </a>
 
-        <div class="sidebar-nav-label" style="margin-top: 24px;">Site web</div>
+        <div class="sidebar-nav-label" style="margin-top: 20px;">Site web</div>
         <a href="{% url 'core:home' %}" class="sidebar-nav-item" target="_blank">
             <i data-lucide="external-link"></i>
             <span>Voir le site</span>
@@ -127,5 +152,6 @@
         }
     });
 </script>
+{% block extra_scripts %}{% endblock %}
 </body>
 </html>

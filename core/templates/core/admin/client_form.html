@@ -1,0 +1,62 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}{% if client %}Modifier le client{% else %}Nouveau client{% endif %}{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+    <h1>{% if client %}Modifier — {{ client.full_name }}{% else %}Nouveau client{% endif %}</h1>
+    <p>{% if client %}Modifier les informations du client{% else %}Enregistrer un nouveau client{% endif %}</p>
+</div>
+
+<div class="admin-form-card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="admin-form-grid">
+            <div class="admin-form-group">
+                <label>Nom complet *</label>
+                <input type="text" name="full_name" value="{% if client %}{{ client.full_name }}{% endif %}" required placeholder="Ex: Mohammed Alami">
+            </div>
+            <div class="admin-form-group">
+                <label>CIN (Carte d'Identité) *</label>
+                <input type="text" name="cin" value="{% if client %}{{ client.cin }}{% endif %}" required placeholder="Ex: AB123456">
+            </div>
+            <div class="admin-form-group">
+                <label>Permis de conduire</label>
+                <input type="text" name="drivers_license" value="{% if client %}{{ client.drivers_license }}{% endif %}" placeholder="N° du permis">
+            </div>
+            <div class="admin-form-group">
+                <label>Téléphone *</label>
+                <input type="text" name="phone" value="{% if client %}{{ client.phone }}{% endif %}" required placeholder="Ex: 0661234567">
+            </div>
+            <div class="admin-form-group">
+                <label>Email</label>
+                <input type="email" name="email" value="{% if client %}{{ client.email }}{% endif %}" placeholder="Ex: client@email.com">
+            </div>
+            <div class="admin-form-group">
+                <label>Ville</label>
+                <input type="text" name="city" value="{% if client %}{{ client.city }}{% endif %}" placeholder="Ex: Ben Slimane">
+            </div>
+            <div class="admin-form-group full-width">
+                <label>Adresse</label>
+                <textarea name="address" rows="2" placeholder="Adresse complète">{% if client %}{{ client.address }}{% endif %}</textarea>
+            </div>
+            <div class="admin-form-group">
+                <label>CIN Recto (photo)</label>
+                <input type="file" name="cin_front" accept="image/*">
+                {% if client and client.cin_front %}
+                <div class="current-image-preview"><img src="{{ client.cin_front.url }}" alt="CIN Recto"></div>
+                {% endif %}
+            </div>
+            <div class="admin-form-group">
+                <label>CIN Verso (photo)</label>
+                <input type="file" name="cin_back" accept="image/*">
+                {% if client and client.cin_back %}
+                <div class="current-image-preview"><img src="{{ client.cin_back.url }}" alt="CIN Verso"></div>
+                {% endif %}
+            </div>
+            <div class="admin-form-actions">
+                <a href="{% url 'core:admin_clients' %}" class="admin-btn admin-btn-outline">Annuler</a>
+                <button type="submit" class="admin-btn admin-btn-primary">{% if client %}Enregistrer{% else %}Ajouter le client{% endif %}</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

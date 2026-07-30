@@ -1,0 +1,113 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}{% if contract %}Modifier le contrat{% else %}Nouveau contrat{% endif %}{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+    <h1>{% if contract %}Modifier le contrat {{ contract.contract_number }}{% else %}Nouveau contrat de location{% endif %}</h1>
+    <p>{% if contract %}Modifier les informations du contrat{% else %}Créer un nouveau contrat de location{% endif %}</p>
+</div>
+
+<div class="admin-form-card">
+    <form method="post">
+        {% csrf_token %}
+        <div class="admin-form-grid">
+            <div class="admin-form-group">
+                <label>Client *</label>
+                <select name="client" required>
+                    <option value="">— Sélectionner un client —</option>
+                    {% for client in clients %}
+                    <option value="{{ client.id }}" {% if contract and contract.client_id == client.id %}selected{% endif %}>{{ client.full_name }} ({{ client.cin }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label>Voiture *</label>
+                <select name="car" required id="carSelect">
+                    <option value="" data-price="0">— Sélectionner une voiture —</option>
+                    {% for car in cars %}
+                    <option value="{{ car.id }}" data-price="{{ car.price_per_day }}" {% if contract and contract.car_id == car.id %}selected{% endif %}>{{ car.get_brand_display }} {{ car.name }} ({{ car.price_per_day }} MAD/j)</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label>Date de début *</label>
+                <input type="date" name="start_date" id="startDate" value="{% if contract %}{{ contract.start_date|date:'Y-m-d' }}{% endif %}" required>
+            </div>
+            <div class="admin-form-group">
+                <label>Date de fin *</label>
+                <input type="date" name="end_date" id="endDate" value="{% if contract %}{{ contract.end_date|date:'Y-m-d' }}{% endif %}" required>
+            </div>
+            <div class="admin-form-group">
+                <label>Prix par jour (MAD) *</label>
+                <input type="number" name="price_per_day" id="pricePerDay" step="0.01" value="{% if contract %}{{ contract.price_per_day }}{% endif %}" required>
+            </div>
+            <div class="admin-form-group">
+                <label>Caution (MAD)</label>
+                <input type="number" name="deposit" step="0.01" value="{% if contract %}{{ contract.deposit }}{% else %}0{% endif %}">
+            </div>
+            <div class="admin-form-group">
+                <label>Km au départ</label>
+                <input type="number" name="km_start" value="{% if contract %}{{ contract.km_start }}{% else %}0{% endif %}">
+            </div>
+            <div class="admin-form-group">
+                <label>Km au retour</label>
+                <input type="number" name="km_end" value="{% if contract %}{{ contract.km_end|default:'' }}{% endif %}" placeholder="À remplir au retour">
+            </div>
+            <div class="admin-form-group">
+                <label>Statut</label>
+                <select name="status">
+                    {% for code, label in statuses %}
+                    <option value="{{ code }}" {% if contract and contract.status == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label>Durée / Montant total</label>
+                <div id="calculatedInfo" style="padding:12px;background:#f5f5f5;border-radius:10px;font-size:0.9rem;color:#424242;">
+                    Sélectionnez les dates et le prix pour voir le calcul automatique
+                </div>
+            </div>
+            <div class="admin-form-group full-width">
+                <label>Notes / Observations</label>
+                <textarea name="notes" placeholder="Notes supplémentaires...">{% if contract %}{{ contract.notes }}{% endif %}</textarea>
+            </div>
+            <div class="admin-form-actions">
+                <a href="{% url 'core:admin_contracts' %}" class="admin-btn admin-btn-outline">Annuler</a>
+                <button type="submit" class="admin-btn admin-btn-primary">{% if contract %}Enregistrer{% else %}Créer le contrat{% endif %}</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Auto-fill price when car is selected
+document.getElementById('carSelect').addEventListener('change', function() {
+    const option = this.options[this.selectedIndex];
+    const price = option.getAttribute('data-price');
+    if (price && price !== '0') {
+        document.getElementById('pricePerDay').value = price;
+    }
+    calculateTotal();
+});
+
+// Auto-calculate total
+function calculateTotal() {
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+    const price = parseFloat(document.getElementById('pricePerDay').value) || 0;
+    const info = document.getElementById('calculatedInfo');
+
+    if (start && end && price > 0) {
+        const d1 = new Date(start);
+        const d2 = new Date(end);
+        const days = Math.max(Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)), 1);
+        const total = days * price;
+        info.innerHTML = `<strong>${days} jour(s)</strong> × ${price.toFixed(2)} MAD = <strong style="color:#E53935;">${total.toFixed(2)} MAD</strong>`;
+    }
+}
+
+document.getElementById('startDate').addEventListener('change', calculateTotal);
+document.getElementById('endDate').addEventListener('change', calculateTotal);
+document.getElementById('pricePerDay').addEventListener('input', calculateTotal);
+calculateTotal();
+</script>
+{% endblock %}

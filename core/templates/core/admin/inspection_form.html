@@ -1,0 +1,57 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}{% if inspection %}Modifier la visite{% else %}Nouvelle visite technique{% endif %}{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+    <h1>{% if inspection %}Modifier la visite technique{% else %}Nouvelle visite technique{% endif %}</h1>
+</div>
+<div class="admin-form-card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="admin-form-grid">
+            <div class="admin-form-group">
+                <label>Voiture *</label>
+                <select name="car" required>
+                    <option value="">— Sélectionner —</option>
+                    {% for car in cars %}
+                    <option value="{{ car.id }}" {% if inspection and inspection.car_id == car.id %}selected{% endif %}>{{ car.get_brand_display }} {{ car.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label>Résultat *</label>
+                <select name="result">
+                    <option value="favorable" {% if inspection and inspection.result == 'favorable' %}selected{% endif %}>Favorable</option>
+                    <option value="defavorable" {% if inspection and inspection.result == 'defavorable' %}selected{% endif %}>Défavorable</option>
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label>Date de la visite *</label>
+                <input type="date" name="inspection_date" value="{% if inspection %}{{ inspection.inspection_date|date:'Y-m-d' }}{% endif %}" required>
+            </div>
+            <div class="admin-form-group">
+                <label>Date d'expiration *</label>
+                <input type="date" name="expiry_date" value="{% if inspection %}{{ inspection.expiry_date|date:'Y-m-d' }}{% endif %}" required>
+            </div>
+            <div class="admin-form-group">
+                <label>Centre de contrôle</label>
+                <input type="text" name="center_name" value="{% if inspection %}{{ inspection.center_name }}{% endif %}" placeholder="Nom du centre">
+            </div>
+            <div class="admin-form-group">
+                <label>Coût (MAD)</label>
+                <input type="number" name="cost" step="0.01" value="{% if inspection %}{{ inspection.cost }}{% else %}0{% endif %}">
+            </div>
+            <div class="admin-form-group full-width">
+                <label>Document scanné</label>
+                <input type="file" name="document" accept="image/*,.pdf">
+                {% if inspection and inspection.document %}
+                <p style="margin-top:8px;font-size:0.85rem;color:#757575;">📎 Document actuel : <a href="{{ inspection.document.url }}" target="_blank" style="color:#E53935;">Voir</a></p>
+                {% endif %}
+            </div>
+            <div class="admin-form-actions">
+                <a href="{% url 'core:admin_inspections' %}" class="admin-btn admin-btn-outline">Annuler</a>
+                <button type="submit" class="admin-btn admin-btn-primary">{% if inspection %}Enregistrer{% else %}Ajouter{% endif %}</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

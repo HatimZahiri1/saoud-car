@@ -1,0 +1,33 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}{% if brand %}Modifier la marque{% else %}Nouvelle marque{% endif %}{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+    <h1>{% if brand %}Modifier — {{ brand.name }}{% else %}Nouvelle marque{% endif %}</h1>
+</div>
+<div class="admin-form-card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="admin-form-grid">
+            <div class="admin-form-group">
+                <label>Nom de la marque *</label>
+                <input type="text" name="name" value="{% if brand %}{{ brand.name }}{% endif %}" required placeholder="Ex: Dacia">
+            </div>
+            <div class="admin-form-group">
+                <label>Pays d'origine</label>
+                <input type="text" name="country" value="{% if brand %}{{ brand.country }}{% endif %}" placeholder="Ex: Maroc/Roumanie">
+            </div>
+            <div class="admin-form-group full-width">
+                <label>Logo</label>
+                <input type="file" name="logo" accept="image/*">
+                {% if brand and brand.logo %}
+                <div class="current-image-preview"><img src="{{ brand.logo.url }}" alt="{{ brand.name }}" style="width:80px;height:80px;object-fit:contain;"></div>
+                {% endif %}
+            </div>
+            <div class="admin-form-actions">
+                <a href="{% url 'core:admin_brands' %}" class="admin-btn admin-btn-outline">Annuler</a>
+                <button type="submit" class="admin-btn admin-btn-primary">{% if brand %}Enregistrer{% else %}Ajouter{% endif %}</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

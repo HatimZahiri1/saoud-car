@@ -1,0 +1,182 @@
+[
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$1200000$2T1JyJF0nPhcw74XTd1K0A$CHmULz0LuYSdhIjt1AI3QiANvt6dYwRIyaS0yJghYDM=",
+        "last_login": "2026-07-23T17:50:40.502Z",
+        "is_superuser": true,
+        "username": "admin",
+        "first_name": "",
+        "last_name": "",
+        "email": "admin@example.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2026-07-23T17:31:40.997Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "core.car",
+    "pk": 1,
+    "fields": {
+        "name": "Sandero",
+        "brand": "Dacia",
+        "category": "economique",
+        "price_per_day": "300.00",
+        "seats": 5,
+        "transmission": "manuelle",
+        "fuel_type": "diesel",
+        "is_available": true,
+        "featured": true,
+        "image": "",
+        "image_url": "/static/core/images/sandero.png",
+        "description": "Compacte, économique et fiable. Idéale pour la ville et les courts trajets.",
+        "created_at": "2026-07-23T10:31:03.515Z"
+    }
+},
+{
+    "model": "core.car",
+    "pk": 2,
+    "fields": {
+        "name": "Duster",
+        "brand": "Dacia",
+        "category": "suv",
+        "price_per_day": "350.00",
+        "seats": 5,
+        "transmission": "manuelle",
+        "fuel_type": "diesel",
+        "is_available": true,
+        "featured": false,
+        "image": "",
+        "image_url": "/static/core/images/duster.png",
+        "description": "SUV robuste et spacieux. Parfait pour les aventures et les longs trajets.",
+        "created_at": "2026-07-23T10:31:03.516Z"
+    }
+},
+{
+    "model": "core.car",
+    "pk": 3,
+    "fields": {
+        "name": "Clio",
+        "brand": "Renault",
+        "category": "confort",
+        "price_per_day": "230.00",
+        "seats": 5,
+        "transmission": "automatique",
+        "fuel_type": "essence",
+        "is_available": true,
+        "featured": true,
+        "image": "",
+        "image_url": "/static/core/images/clio.png",
+        "description": "Élégante et confortable. Le choix parfait pour un confort optimal.",
+        "created_at": "2026-07-23T10:31:03.516Z"
+    }
+},
+{
+    "model": "core.car",
+    "pk": 4,
+    "fields": {
+        "name": "Logan",
+        "brand": "Dacia",
+        "category": "economique",
+        "price_per_day": "220.00",
+        "seats": 5,
+        "transmission": "manuelle",
+        "fuel_type": "diesel",
+        "is_available": true,
+        "featured": false,
+        "image": "",
+        "image_url": "/static/core/images/logan.png",
+        "description": "Berline spacieuse et économique. Idéale pour les familles.",
+        "created_at": "2026-07-23T10:31:03.517Z"
+    }
+},
+{
+    "model": "core.car",
+    "pk": 5,
+    "fields": {
+        "name": "Kangoo",
+        "brand": "Renault",
+        "category": "confort",
+        "price_per_day": "250.00",
+        "seats": 5,
+        "transmission": "manuelle",
+        "fuel_type": "diesel",
+        "is_available": true,
+        "featured": false,
+        "image": "",
+        "image_url": "/static/core/images/kangoo.png",
+        "description": "Véhicule utilitaire polyvalent. Grand espace de chargement.",
+        "created_at": "2026-07-23T10:31:03.517Z"
+    }
+},
+{
+    "model": "core.car",
+    "pk": 6,
+    "fields": {
+        "name": "Sandero Stepway",
+        "brand": "Dacia",
+        "category": "confort",
+        "price_per_day": "250.00",
+        "seats": 5,
+        "transmission": "manuelle",
+        "fuel_type": "essence",
+        "is_available": true,
+        "featured": true,
+        "image": "",
+        "image_url": "/static/core/images/sandero_stepway.png",
+        "description": "Version surélevée du Sandero. Style baroudeur et confort accru.",
+        "created_at": "2026-07-23T10:31:03.518Z"
+    }
+},
+{
+    "model": "core.review",
+    "pk": 1,
+    "fields": {
+        "name": "Hatim Zahiri",
+        "city": "Mohammedia",
+        "rating": 5,
+        "comment": "Service top :)",
+        "is_approved": true,
+        "created_at": "2026-07-24T09:03:47.123Z"
+    }
+},
+{
+    "model": "core.review",
+    "pk": 2,
+    "fields": {
+        "name": "Ayoub Tazi",
+        "city": "Casablanca",
+        "rating": 5,
+        "comment": "Excellent service, je suis très satisfait. L'équipe est professionnelle et réactive.",
+        "is_approved": true,
+        "created_at": "2026-07-27T10:14:59.500Z"
+    }
+},
+{
+    "model": "core.review",
+    "pk": 3,
+    "fields": {
+        "name": "Nizar",
+        "city": "Taoufik",
+        "rating": 5,
+        "comment": "Je recommande cette entreprise à tous ceux qui recherchent un travail sérieux.",
+        "is_approved": true,
+        "created_at": "2026-07-27T10:15:30.988Z"
+    }
+},
+{
+    "model": "core.contactmessage",
+    "pk": 1,
+    "fields": {
+        "name": "Ayoub Barbour",
+        "email": "barbou12@gmail.com",
+        "phone": "0676190927",
+        "subject": "Réservation ",
+        "message": "Est-ce qu'il ya une Clio 5 disponible pour 7 jours ?",
+        "created_at": "2026-07-27T08:48:13.390Z",
+        "is_read": true
+    }
+}
+]

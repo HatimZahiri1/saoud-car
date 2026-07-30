@@ -1,0 +1,54 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}Assurances{% endblock %}
+{% block content %}
+<div class="admin-page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1>Assurances</h1>
+        <p>Suivi des assurances des véhicules</p>
+    </div>
+    <a href="{% url 'core:admin_insurance_add' %}" class="admin-btn admin-btn-primary"><i data-lucide="plus" style="width:16px;height:16px;"></i> Nouvelle assurance</a>
+</div>
+
+<div class="admin-table-wrapper">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Voiture</th>
+                <th>Compagnie</th>
+                <th>Type</th>
+                <th>N° Police</th>
+                <th>Expiration</th>
+                <th>Prime (MAD)</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ins in all_insurances %}
+            <tr>
+                <td><strong>{{ ins.car }}</strong></td>
+                <td>{{ ins.company }}</td>
+                <td>{{ ins.get_insurance_type_display }}</td>
+                <td>{{ ins.policy_number|default:"—" }}</td>
+                <td>{{ ins.expiry_date|date:"d/m/Y" }}</td>
+                <td>{{ ins.annual_premium|floatformat:0 }}</td>
+                <td>
+                    {% if ins.status == 'valid' %}<span class="badge badge-green">Valide</span>
+                    {% elif ins.status == 'expiring_soon' %}<span class="badge badge-yellow">Expire bientôt</span>
+                    {% else %}<span class="badge badge-red">Expiré</span>{% endif %}
+                </td>
+                <td>
+                    <div class="admin-actions">
+                        {% if ins.document %}<a href="{{ ins.document.url }}" class="admin-btn admin-btn-sm admin-btn-outline" title="Document" target="_blank"><i data-lucide="file" style="width:14px;height:14px;"></i></a>{% endif %}
+                        <a href="{% url 'core:admin_insurance_edit' ins.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
+                        <a href="{% url 'core:admin_insurance_delete' ins.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer ?');"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="admin-empty"><p>Aucune assurance enregistrée</p></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

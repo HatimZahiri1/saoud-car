@@ -1,0 +1,55 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}Visites Techniques{% endblock %}
+{% block content %}
+<div class="admin-page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1>Visites Techniques</h1>
+        <p>Suivi des contrôles techniques des véhicules</p>
+    </div>
+    <a href="{% url 'core:admin_inspection_add' %}" class="admin-btn admin-btn-primary"><i data-lucide="plus" style="width:16px;height:16px;"></i> Nouvelle visite</a>
+</div>
+
+<div class="admin-table-wrapper">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Voiture</th>
+                <th>Date visite</th>
+                <th>Expiration</th>
+                <th>Résultat</th>
+                <th>Centre</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for insp in all_inspections %}
+            <tr>
+                <td><strong>{{ insp.car }}</strong></td>
+                <td>{{ insp.inspection_date|date:"d/m/Y" }}</td>
+                <td>{{ insp.expiry_date|date:"d/m/Y" }}</td>
+                <td>
+                    {% if insp.result == 'favorable' %}<span class="badge badge-green">Favorable</span>
+                    {% else %}<span class="badge badge-red">Défavorable</span>{% endif %}
+                </td>
+                <td>{{ insp.center_name|default:"—" }}</td>
+                <td>
+                    {% if insp.status == 'valid' %}<span class="badge badge-green">Valide</span>
+                    {% elif insp.status == 'expiring_soon' %}<span class="badge badge-yellow">Expire bientôt</span>
+                    {% else %}<span class="badge badge-red">Expiré</span>{% endif %}
+                </td>
+                <td>
+                    <div class="admin-actions">
+                        {% if insp.document %}<a href="{{ insp.document.url }}" class="admin-btn admin-btn-sm admin-btn-outline" title="Document" target="_blank"><i data-lucide="file" style="width:14px;height:14px;"></i></a>{% endif %}
+                        <a href="{% url 'core:admin_inspection_edit' insp.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
+                        <a href="{% url 'core:admin_inspection_delete' insp.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer ?');"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="admin-empty"><p>Aucune visite technique enregistrée</p></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

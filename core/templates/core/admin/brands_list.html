@@ -1,0 +1,49 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}Marques{% endblock %}
+{% block content %}
+<div class="admin-page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1>Marques</h1>
+        <p>Gérer les marques de véhicules</p>
+    </div>
+    <a href="{% url 'core:admin_brand_add' %}" class="admin-btn admin-btn-primary"><i data-lucide="plus" style="width:16px;height:16px;"></i> Nouvelle marque</a>
+</div>
+
+<div class="admin-table-wrapper">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Logo</th>
+                <th>Nom</th>
+                <th>Pays</th>
+                <th>Véhicules</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for brand in all_brands %}
+            <tr>
+                <td>
+                    {% if brand.logo %}
+                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="car-image-thumb" style="width:48px;height:48px;object-fit:contain;border-radius:8px;background:#f5f5f5;padding:4px;">
+                    {% else %}
+                    <div style="width:48px;height:48px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;"><i data-lucide="tag" style="width:20px;height:20px;color:#bdbdbd;"></i></div>
+                    {% endif %}
+                </td>
+                <td><strong>{{ brand.name }}</strong></td>
+                <td>{{ brand.country|default:"—" }}</td>
+                <td><span class="badge badge-blue">{{ brand.car_count }}</span></td>
+                <td>
+                    <div class="admin-actions">
+                        <a href="{% url 'core:admin_brand_edit' brand.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
+                        <a href="{% url 'core:admin_brand_delete' brand.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer cette marque ?');"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="admin-empty"><p>Aucune marque enregistrée</p></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

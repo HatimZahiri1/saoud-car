@@ -2,39 +2,130 @@
 
 {% block title %}Dashboard{% endblock %}
 
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="admin-page-header">
     <h1>Dashboard</h1>
     <p>Bienvenue dans votre panneau d'administration SAOUD CAR</p>
 </div>
 
+<!-- Alerts for expiring items -->
+{% if expiring_inspections or expiring_insurances %}
+<div class="admin-alerts-section">
+    {% for insp in expiring_inspections %}
+    <div class="admin-alert admin-alert-warning">
+        <i data-lucide="alert-triangle" style="width:18px;height:18px;"></i>
+        <strong>Visite technique</strong> — {{ insp.car }} expire le {{ insp.expiry_date|date:"d/m/Y" }}
+        {% if insp.status == 'expired' %}<span class="badge badge-red" style="margin-left:8px;">Expiré</span>{% else %}<span class="badge badge-yellow" style="margin-left:8px;">Expire bientôt</span>{% endif %}
+    </div>
+    {% endfor %}
+    {% for ins in expiring_insurances %}
+    <div class="admin-alert admin-alert-warning">
+        <i data-lucide="alert-triangle" style="width:18px;height:18px;"></i>
+        <strong>Assurance {{ ins.company }}</strong> — {{ ins.car }} expire le {{ ins.expiry_date|date:"d/m/Y" }}
+        {% if ins.status == 'expired' %}<span class="badge badge-red" style="margin-left:8px;">Expiré</span>{% else %}<span class="badge badge-yellow" style="margin-left:8px;">Expire bientôt</span>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <!-- Stats Cards -->
 <div class="admin-stats">
     <div class="admin-stat-card">
         <div class="admin-stat-header">
-            <div class="admin-stat-icon red">
-                <i data-lucide="car"></i>
-            </div>
+            <div class="admin-stat-icon red"><i data-lucide="car"></i></div>
         </div>
         <div class="admin-stat-number">{{ total_cars }}</div>
-        <div class="admin-stat-label">Voitures au total</div>
+        <div class="admin-stat-label">Voitures ({{ available_cars }} disponibles)</div>
     </div>
     
     <div class="admin-stat-card">
         <div class="admin-stat-header">
-            <div class="admin-stat-icon green">
-                <i data-lucide="check-circle"></i>
+            <div class="admin-stat-icon blue"><i data-lucide="users"></i></div>
+        </div>
+        <div class="admin-stat-number">{{ total_clients }}</div>
+        <div class="admin-stat-label">Clients enregistrés</div>
+    </div>
+    
+    <div class="admin-stat-card">
+        <div class="admin-stat-header">
+            <div class="admin-stat-icon green"><i data-lucide="file-text"></i></div>
+        </div>
+        <div class="admin-stat-number">{{ active_contracts }}</div>
+        <div class="admin-stat-label">Contrats en cours</div>
+    </div>
+    
+    <div class="admin-stat-card">
+        <div class="admin-stat-header">
+            <div class="admin-stat-icon yellow"><i data-lucide="banknote"></i></div>
+        </div>
+        <div class="admin-stat-number">{{ month_revenue|floatformat:0 }}</div>
+        <div class="admin-stat-label">Revenus du mois (MAD)</div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="admin-charts-row">
+    <div class="admin-chart-card">
+        <div class="admin-chart-header">
+            <h3>Revenus Mensuels (MAD)</h3>
+        </div>
+        <div class="admin-chart-body">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+    <div class="admin-chart-card admin-chart-small">
+        <div class="admin-chart-header">
+            <h3>Locations par Catégorie</h3>
+        </div>
+        <div class="admin-chart-body">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Revenue + Top Cars Row -->
+<div class="admin-info-row">
+    <div class="admin-info-card">
+        <div class="admin-info-header">
+            <h3>💰 Résumé Financier</h3>
+        </div>
+        <div class="admin-info-body">
+            <div class="revenue-item">
+                <span>Revenus du mois</span>
+                <strong>{{ month_revenue|floatformat:0 }} MAD</strong>
+            </div>
+            <div class="revenue-item">
+                <span>Revenus de l'année {{ current_year }}</span>
+                <strong>{{ year_revenue|floatformat:0 }} MAD</strong>
             </div>
         </div>
-        <div class="admin-stat-number">{{ available_cars }}</div>
-        <div class="admin-stat-label">Véhicules disponibles</div>
     </div>
-    
+    <div class="admin-info-card">
+        <div class="admin-info-header">
+            <h3>🏆 Top Véhicules Loués</h3>
+        </div>
+        <div class="admin-info-body">
+            {% for car in top_cars %}
+            <div class="top-car-item">
+                <span>{{ car.get_brand_display }} {{ car.name }}</span>
+                <span class="badge badge-blue">{{ car.rental_count }} location{{ car.rental_count|pluralize }}</span>
+            </div>
+            {% empty %}
+            <p class="admin-empty-text">Aucune location enregistrée</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Row -->
+<div class="admin-stats" style="margin-top: 8px;">
     <div class="admin-stat-card">
         <div class="admin-stat-header">
-            <div class="admin-stat-icon yellow">
-                <i data-lucide="star"></i>
-            </div>
+            <div class="admin-stat-icon yellow"><i data-lucide="star"></i></div>
         </div>
         <div class="admin-stat-number">{{ total_reviews }}</div>
         <div class="admin-stat-label">Avis clients ({{ pending_reviews }} en attente)</div>
@@ -42,9 +133,7 @@
     
     <div class="admin-stat-card">
         <div class="admin-stat-header">
-            <div class="admin-stat-icon blue">
-                <i data-lucide="mail"></i>
-            </div>
+            <div class="admin-stat-icon blue"><i data-lucide="mail"></i></div>
         </div>
         <div class="admin-stat-number">{{ total_messages }}</div>
         <div class="admin-stat-label">Messages ({{ unread_messages }} non lus)</div>
@@ -126,4 +215,82 @@
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Revenue Chart
+    const revenueCtx = document.getElementById('revenueChart');
+    if (revenueCtx) {
+        new Chart(revenueCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ monthly_labels|safe }},
+                datasets: [{
+                    label: 'Revenus (MAD)',
+                    data: {{ monthly_revenue_data|safe }},
+                    backgroundColor: 'rgba(229, 57, 53, 0.2)',
+                    borderColor: '#E53935',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: v => v.toLocaleString() + ' MAD' },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { maxRotation: 45 }
+                    }
+                }
+            }
+        });
+    }
+
+    // Category Chart
+    const categoryCtx = document.getElementById('categoryChart');
+    if (categoryCtx) {
+        const catLabels = {{ category_labels|safe }};
+        const catData = {{ category_data|safe }};
+        if (catData.length > 0) {
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels,
+                    datasets: [{
+                        data: catData,
+                        backgroundColor: ['#E53935', '#2979FF', '#00E676', '#FFD740'],
+                        borderWidth: 0,
+                        hoverOffset: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 16, usePointStyle: true }
+                        }
+                    },
+                    cutout: '65%',
+                }
+            });
+        } else {
+            categoryCtx.parentElement.innerHTML = '<p style="text-align:center;color:#757575;padding:40px;">Aucune donnée de location</p>';
+        }
+    }
+});
+</script>
 {% endblock %}

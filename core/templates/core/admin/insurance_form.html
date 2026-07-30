@@ -1,0 +1,62 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}{% if insurance %}Modifier l'assurance{% else %}Nouvelle assurance{% endif %}{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+    <h1>{% if insurance %}Modifier l'assurance{% else %}Nouvelle assurance{% endif %}</h1>
+</div>
+<div class="admin-form-card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="admin-form-grid">
+            <div class="admin-form-group">
+                <label>Voiture *</label>
+                <select name="car" required>
+                    <option value="">— Sélectionner —</option>
+                    {% for car in cars %}
+                    <option value="{{ car.id }}" {% if insurance and insurance.car_id == car.id %}selected{% endif %}>{{ car.get_brand_display }} {{ car.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label>Compagnie d'assurance *</label>
+                <input type="text" name="company" value="{% if insurance %}{{ insurance.company }}{% endif %}" required placeholder="Ex: Wafa Assurance">
+            </div>
+            <div class="admin-form-group">
+                <label>Type d'assurance *</label>
+                <select name="insurance_type">
+                    {% for code, label in insurance_types %}
+                    <option value="{{ code }}" {% if insurance and insurance.insurance_type == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label>N° de police</label>
+                <input type="text" name="policy_number" value="{% if insurance %}{{ insurance.policy_number }}{% endif %}" placeholder="Numéro de police">
+            </div>
+            <div class="admin-form-group">
+                <label>Date de début *</label>
+                <input type="date" name="start_date" value="{% if insurance %}{{ insurance.start_date|date:'Y-m-d' }}{% endif %}" required>
+            </div>
+            <div class="admin-form-group">
+                <label>Date d'expiration *</label>
+                <input type="date" name="expiry_date" value="{% if insurance %}{{ insurance.expiry_date|date:'Y-m-d' }}{% endif %}" required>
+            </div>
+            <div class="admin-form-group">
+                <label>Prime annuelle (MAD)</label>
+                <input type="number" name="annual_premium" step="0.01" value="{% if insurance %}{{ insurance.annual_premium }}{% else %}0{% endif %}">
+            </div>
+            <div class="admin-form-group">
+                <label>Document scanné</label>
+                <input type="file" name="document" accept="image/*,.pdf">
+                {% if insurance and insurance.document %}
+                <p style="margin-top:8px;font-size:0.85rem;color:#757575;">📎 <a href="{{ insurance.document.url }}" target="_blank" style="color:#E53935;">Voir le document</a></p>
+                {% endif %}
+            </div>
+            <div class="admin-form-actions">
+                <a href="{% url 'core:admin_insurances' %}" class="admin-btn admin-btn-outline">Annuler</a>
+                <button type="submit" class="admin-btn admin-btn-primary">{% if insurance %}Enregistrer{% else %}Ajouter{% endif %}</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

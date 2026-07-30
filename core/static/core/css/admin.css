@@ -1,5 +1,5 @@
 /* ============================================
-   SAOUD CAR — Admin Dashboard Styles
+   SAOUD CAR — Admin Dashboard Styles v2.0
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
@@ -60,8 +60,8 @@ a {
 
 .sidebar-header {
     padding: 24px 20px;
-    background: rgba(10, 15, 30, 0.95); /* Same as frontend navbar */
-    border-bottom: 1px solid rgba(229, 57, 53, 0.3); /* Same as frontend border */
+    background: rgba(10, 15, 30, 0.95);
+    border-bottom: 1px solid rgba(229, 57, 53, 0.3);
 }
 
 .sidebar-logo {
@@ -152,13 +152,13 @@ a {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 14px;
+    padding: 10px 14px;
     border-radius: 10px;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 500;
     color: var(--admin-text);
     transition: all 0.2s ease;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     cursor: pointer;
 }
 
@@ -280,7 +280,7 @@ a {
 .admin-stat-card:hover {
     border-color: rgba(229, 57, 53, 0.3);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
 }
 
 .admin-stat-header {
@@ -320,6 +320,160 @@ a {
     font-size: 0.82rem;
     color: var(--admin-text-muted);
     margin-top: 4px;
+}
+
+/* ---- Charts ---- */
+.admin-charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.admin-chart-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.admin-chart-header {
+    padding: 20px 24px 0;
+}
+
+.admin-chart-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--admin-text);
+}
+
+.admin-chart-body {
+    padding: 16px 24px 24px;
+    height: 280px;
+    position: relative;
+}
+
+/* ---- Info Cards Row ---- */
+.admin-info-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.admin-info-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.admin-info-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-info-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--admin-text);
+}
+
+.admin-info-body {
+    padding: 16px 24px;
+}
+
+.revenue-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.revenue-item:last-child {
+    border-bottom: none;
+}
+
+.revenue-item span {
+    color: var(--admin-text-muted);
+    font-size: 0.88rem;
+}
+
+.revenue-item strong {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    color: var(--admin-primary);
+}
+
+.top-car-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.top-car-item:last-child {
+    border-bottom: none;
+}
+
+.top-car-item span:first-child {
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+.admin-empty-text {
+    text-align: center;
+    color: var(--admin-text-muted);
+    padding: 24px;
+    font-size: 0.88rem;
+}
+
+/* ---- Alerts Section ---- */
+.admin-alerts-section {
+    margin-bottom: 24px;
+}
+
+.admin-alert-warning {
+    background: rgba(255, 152, 0, 0.08);
+    border: 1px solid rgba(255, 152, 0, 0.2);
+    color: #E65100;
+}
+
+/* ---- Filters ---- */
+.admin-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.admin-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--admin-text-muted);
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-filter-btn:hover {
+    border-color: var(--admin-primary);
+    color: var(--admin-primary);
+}
+
+.admin-filter-btn.active {
+    background: var(--admin-primary);
+    color: var(--admin-white);
+    border-color: var(--admin-primary);
 }
 
 /* ---- Table ---- */
@@ -364,8 +518,8 @@ a {
 }
 
 .admin-table td {
-    padding: 16px 20px;
-    font-size: 0.88rem;
+    padding: 14px 20px;
+    font-size: 0.86rem;
     border-bottom: 1px solid var(--admin-border);
     vertical-align: middle;
 }
@@ -661,6 +815,15 @@ a {
 }
 
 /* ---- Responsive ---- */
+@media (max-width: 1024px) {
+    .admin-charts-row {
+        grid-template-columns: 1fr;
+    }
+    .admin-info-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 768px) {
     .admin-mobile-header {
         display: flex;
@@ -700,7 +863,7 @@ a {
 
     .admin-sidebar {
         transform: translateX(-100%);
-        width: 260px; /* Keep full width */
+        width: 260px;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1000;
     }
@@ -711,11 +874,11 @@ a {
 
     .admin-main {
         margin-left: 0;
-        padding: 80px 20px 20px 20px; /* Space for mobile header */
+        padding: 80px 16px 20px 16px;
     }
 
     .admin-stats {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
     }
 
     .admin-form-grid {
@@ -724,5 +887,25 @@ a {
 
     .admin-table-wrapper {
         overflow-x: auto;
+    }
+
+    .admin-chart-body {
+        height: 220px;
+    }
+
+    .admin-page-header h1 {
+        font-size: 1.4rem;
+    }
+
+    .admin-footer {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-stats {
+        grid-template-columns: 1fr;
     }
 }

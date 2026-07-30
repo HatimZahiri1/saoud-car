@@ -1,10 +1,10 @@
 {% extends 'core/admin/base_admin.html' %}
 
-{% block title %}{% if car %}Modifier {{ car.brand }} {{ car.name }}{% else %}Ajouter une voiture{% endif %}{% endblock %}
+{% block title %}{% if car %}Modifier {{ car.get_brand_display }} {{ car.name }}{% else %}Ajouter une voiture{% endif %}{% endblock %}
 
 {% block content %}
 <div class="admin-page-header">
-    <h1>{% if car %}Modifier « {{ car.brand }} {{ car.name }} »{% else %}Ajouter une voiture{% endif %}</h1>
+    <h1>{% if car %}Modifier « {{ car.get_brand_display }} {{ car.name }} »{% else %}Ajouter une voiture{% endif %}</h1>
     <p>{% if car %}Modifiez les informations du véhicule ci-dessous{% else %}Remplissez les informations du nouveau véhicule{% endif %}</p>
 </div>
 
@@ -12,8 +12,19 @@
     {% csrf_token %}
     <div class="admin-form-grid">
         <div class="admin-form-group">
-            <label for="brand">Marque *</label>
-            <input type="text" id="brand" name="brand" required placeholder="Ex: Dacia, Renault..." value="{{ car.brand|default:'' }}">
+            <label for="brand_ref">Marque (liste) *</label>
+            <select id="brand_ref" name="brand_ref">
+                <option value="">— Sélectionner une marque —</option>
+                {% for b in brands %}
+                <option value="{{ b.id }}" {% if car and car.brand_ref_id == b.id %}selected{% endif %}>{{ b.name }}</option>
+                {% endfor %}
+            </select>
+            <small style="color:var(--admin-text-muted);">Ou tapez le nom manuellement ci-dessous</small>
+        </div>
+
+        <div class="admin-form-group">
+            <label for="brand">Marque (texte)</label>
+            <input type="text" id="brand" name="brand" placeholder="Ex: Dacia, Renault..." value="{{ car.brand|default:'' }}">
         </div>
         
         <div class="admin-form-group">
@@ -33,6 +44,26 @@
         <div class="admin-form-group">
             <label for="price_per_day">Prix par jour (MAD) *</label>
             <input type="number" id="price_per_day" name="price_per_day" required step="0.01" placeholder="250.00" value="{{ car.price_per_day|default:'' }}">
+        </div>
+
+        <div class="admin-form-group">
+            <label for="license_plate">Immatriculation</label>
+            <input type="text" id="license_plate" name="license_plate" placeholder="Ex: 12345-A-6" value="{{ car.license_plate|default:'' }}">
+        </div>
+
+        <div class="admin-form-group">
+            <label for="year">Année</label>
+            <input type="number" id="year" name="year" min="2000" max="2030" placeholder="Ex: 2023" value="{{ car.year|default:'' }}">
+        </div>
+
+        <div class="admin-form-group">
+            <label for="mileage">Kilométrage</label>
+            <input type="number" id="mileage" name="mileage" min="0" placeholder="Ex: 45000" value="{{ car.mileage|default:0 }}">
+        </div>
+
+        <div class="admin-form-group">
+            <label for="color">Couleur</label>
+            <input type="text" id="color" name="color" placeholder="Ex: Noir, Blanc..." value="{{ car.color|default:'' }}">
         </div>
         
         <div class="admin-form-group">

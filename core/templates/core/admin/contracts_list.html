@@ -1,0 +1,64 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}Contrats{% endblock %}
+{% block content %}
+<div class="admin-page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1>Contrats de Location</h1>
+        <p>Gérer tous les contrats de location</p>
+    </div>
+    <div class="admin-actions" style="flex-wrap:wrap;">
+        <a href="{% url 'core:admin_contracts_export_csv' %}" class="admin-btn admin-btn-sm admin-btn-outline"><i data-lucide="download" style="width:16px;height:16px;"></i> CSV</a>
+        <a href="{% url 'core:admin_contracts_export_excel' %}" class="admin-btn admin-btn-sm admin-btn-outline"><i data-lucide="file-spreadsheet" style="width:16px;height:16px;"></i> Excel</a>
+        <a href="{% url 'core:admin_contract_add' %}" class="admin-btn admin-btn-primary"><i data-lucide="plus" style="width:16px;height:16px;"></i> Nouveau contrat</a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="admin-filters">
+    <a href="{% url 'core:admin_contracts' %}" class="admin-filter-btn {% if not status_filter %}active{% endif %}">Tous</a>
+    <a href="?status=en_cours" class="admin-filter-btn {% if status_filter == 'en_cours' %}active{% endif %}">En cours</a>
+    <a href="?status=termine" class="admin-filter-btn {% if status_filter == 'termine' %}active{% endif %}">Terminés</a>
+    <a href="?status=annule" class="admin-filter-btn {% if status_filter == 'annule' %}active{% endif %}">Annulés</a>
+</div>
+
+<div class="admin-table-wrapper">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>N° Contrat</th>
+                <th>Client</th>
+                <th>Voiture</th>
+                <th>Dates</th>
+                <th>Total (MAD)</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contract in all_contracts %}
+            <tr>
+                <td><strong>{{ contract.contract_number }}</strong></td>
+                <td>{{ contract.client.full_name }}</td>
+                <td>{{ contract.car.get_brand_display }} {{ contract.car.name }}</td>
+                <td>{{ contract.start_date|date:"d/m/Y" }} → {{ contract.end_date|date:"d/m/Y" }}<br><small style="color:#757575;">{{ contract.duration_days }}j</small></td>
+                <td><strong>{{ contract.total_amount|floatformat:0 }}</strong></td>
+                <td>
+                    {% if contract.status == 'en_cours' %}<span class="badge badge-blue">En cours</span>
+                    {% elif contract.status == 'termine' %}<span class="badge badge-green">Terminé</span>
+                    {% else %}<span class="badge badge-red">Annulé</span>{% endif %}
+                </td>
+                <td>
+                    <div class="admin-actions">
+                        <a href="{% url 'core:admin_contract_pdf' contract.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="PDF"><i data-lucide="file-down" style="width:14px;height:14px;"></i></a>
+                        <a href="{% url 'core:admin_contract_edit' contract.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
+                        <a href="{% url 'core:admin_contract_delete' contract.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer ce contrat ?');"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="admin-empty"><p>Aucun contrat pour le moment</p></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
