@@ -9,6 +9,7 @@ import datetime
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="Nom de la marque")
     logo = models.ImageField(upload_to='brands/', blank=True, null=True, verbose_name="Logo")
+    logo_url = models.URLField(blank=True, verbose_name="URL du Logo")
     country = models.CharField(max_length=100, blank=True, verbose_name="Pays d'origine")
     created_at = models.DateTimeField(auto_now_add=True)
 
