@@ -440,6 +440,7 @@ def admin_brand_edit(request, brand_id):
         brand.country = request.POST.get('country', brand.country)
         if request.FILES.get('logo'):
             brand.logo = request.FILES['logo']
+            brand.logo_url = ''  # Clear external URL if a new file is uploaded
         brand.save()
         messages.success(request, f'Marque "{brand.name}" modifiée avec succès !')
         return redirect('core:admin_brands')
