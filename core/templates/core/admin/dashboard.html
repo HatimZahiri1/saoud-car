@@ -87,6 +87,36 @@
     </div>
 </div>
 
+<div class="admin-charts-row" style="margin-top: 24px;">
+    <div class="admin-chart-card">
+        <div class="admin-chart-header">
+            <h3>Évolution des Locations (12 mois)</h3>
+        </div>
+        <div class="admin-chart-body">
+            <canvas id="rentalsChart"></canvas>
+        </div>
+    </div>
+    <div class="admin-chart-card admin-chart-small">
+        <div class="admin-chart-header">
+            <h3>Statut de la Flotte</h3>
+        </div>
+        <div class="admin-chart-body">
+            <canvas id="fleetChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="admin-charts-row" style="margin-top: 24px;">
+    <div class="admin-chart-card">
+        <div class="admin-chart-header">
+            <h3>Top 5 Revenus par Marque (MAD)</h3>
+        </div>
+        <div class="admin-chart-body">
+            <canvas id="brandChart"></canvas>
+        </div>
+    </div>
+</div>
+
 <!-- Revenue + Top Cars Row -->
 <div class="admin-info-row">
     <div class="admin-info-card">
@@ -290,6 +320,98 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             categoryCtx.parentElement.innerHTML = '<p style="text-align:center;color:#757575;padding:40px;">Aucune donnée de location</p>';
         }
+    }
+
+    // Rentals Evolution Chart (Line)
+    const rentalsCtx = document.getElementById('rentalsChart');
+    if (rentalsCtx) {
+        new Chart(rentalsCtx, {
+            type: 'line',
+            data: {
+                labels: {{ monthly_labels|safe }},
+                datasets: [{
+                    label: 'Nombre de Locations',
+                    data: {{ monthly_rentals_data|safe }},
+                    backgroundColor: 'rgba(41, 121, 255, 0.1)',
+                    borderColor: '#2979FF',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#2979FF',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { precision: 0 } },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45 } }
+                }
+            }
+        });
+    }
+
+    // Brand Revenue Chart (Bar)
+    const brandCtx = document.getElementById('brandChart');
+    if (brandCtx) {
+        const bLabels = {{ brand_revenue_labels|safe }};
+        const bData = {{ brand_revenue_data|safe }};
+        if (bData.length > 0) {
+            new Chart(brandCtx, {
+                type: 'bar',
+                data: {
+                    labels: bLabels,
+                    datasets: [{
+                        label: 'Revenus par Marque (MAD)',
+                        data: bData,
+                        backgroundColor: 'rgba(0, 230, 118, 0.2)',
+                        borderColor: '#00E676',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { callback: v => v.toLocaleString() + ' MAD' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        } else {
+            brandCtx.parentElement.innerHTML = '<p style="text-align:center;color:#757575;padding:40px;">Aucune donnée de revenus</p>';
+        }
+    }
+
+    // Fleet Status Chart (Doughnut)
+    const fleetCtx = document.getElementById('fleetChart');
+    if (fleetCtx) {
+        new Chart(fleetCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ fleet_status_labels|safe }},
+                datasets: [{
+                    data: {{ fleet_status_data|safe }},
+                    backgroundColor: ['#00E676', '#FFD740'],
+                    borderWidth: 0,
+                    hoverOffset: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } }
+                },
+                cutout: '75%',
+            }
+        });
     }
 });
 </script>

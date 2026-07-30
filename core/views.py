@@ -156,6 +156,35 @@ def admin_dashboard(request):
         month_names = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
         monthly_labels.append(f"{month_names[month - 1]} {year}")
 
+    # Locations par mois (Courbe)
+    monthly_rentals_data = []
+    for i in range(11, -1, -1):
+        d = today - datetime.timedelta(days=i * 30)
+        month = d.month
+        year = d.year
+        rentals_count = RentalContract.objects.filter(
+            start_date__year=year,
+            start_date__month=month
+        ).count()
+        monthly_rentals_data.append(rentals_count)
+
+    # Revenus par Marque (Bâtons)
+    brand_revenue_labels = []
+    brand_revenue_data = []
+    # On récupère toutes les marques (ou les noms de marques via car__brand_ref__name)
+    brands_data = RentalContract.objects.filter(status='termine').values('car__brand_ref__name').annotate(total=Sum('total_amount')).order_by('-total')[:5]
+    for b in brands_data:
+        name = b['car__brand_ref__name'] or 'Inconnue'
+        total = b['total'] or 0
+        brand_revenue_labels.append(name)
+        brand_revenue_data.append(float(total))
+
+    # Statut de la flotte (Camembert)
+    fleet_status_labels = ['Disponibles', 'En Location']
+    rented_cars = Car.objects.filter(is_available=False).count()
+    # or actually we can just use available_cars and (total_cars - available_cars)
+    fleet_status_data = [available_cars, total_cars - available_cars]
+
     # Données pour le graphique par catégorie
     category_data = []
     category_labels = []
@@ -191,9 +220,14 @@ def admin_dashboard(request):
         'month_revenue': month_revenue,
         'year_revenue': year_revenue,
         'monthly_revenue_data': json.dumps(monthly_revenue_data),
+        'monthly_rentals_data': json.dumps(monthly_rentals_data),
         'monthly_labels': json.dumps(monthly_labels),
         'category_data': json.dumps(category_data),
         'category_labels': json.dumps(category_labels),
+        'brand_revenue_labels': json.dumps(brand_revenue_labels),
+        'brand_revenue_data': json.dumps(brand_revenue_data),
+        'fleet_status_labels': json.dumps(fleet_status_labels),
+        'fleet_status_data': json.dumps(fleet_status_data),
         'top_cars': top_cars,
         'expiring_inspections': expiring_inspections,
         'expiring_insurances': expiring_insurances,
