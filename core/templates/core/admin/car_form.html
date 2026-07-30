@@ -128,4 +128,76 @@
         </div>
     </div>
 </form>
+
+{% if car %}
+<div style="margin-top: 40px; border-top: 1px solid var(--admin-border); padding-top: 24px;">
+    <h2>Dossier du véhicule</h2>
+    <p style="color:var(--admin-text-muted); margin-bottom: 20px;">Gérez les documents liés à ce véhicule (Assurance, Visite Technique)</p>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        
+        <!-- VISITE TECHNIQUE -->
+        <div class="admin-card" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--admin-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="wrench" style="width:18px;height:18px;"></i> Visites Techniques</h3>
+                <a href="{% url 'core:admin_inspection_add' %}?car={{ car.id }}" class="admin-btn admin-btn-sm admin-btn-outline"><i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter</a>
+            </div>
+            
+            {% if car.inspections.exists %}
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
+                {% for insp in car.inspections.all %}
+                <li style="padding: 12px; border: 1px solid var(--admin-border); border-radius: 6px; background: #fafafa;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <strong>Expire le {{ insp.expiry_date|date:"d M Y" }}</strong>
+                        <span class="badge badge-{% if insp.status == 'expired' %}red{% elif insp.status == 'expiring_soon' %}orange{% else %}green{% endif %}">{{ insp.status_label }}</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--admin-text-muted);">
+                        Fait le : {{ insp.inspection_date|date:"d M Y" }}<br>
+                        Résultat : {{ insp.get_result_display }}
+                    </div>
+                    <div style="margin-top: 8px; text-align: right;">
+                        <a href="{% url 'core:admin_inspection_edit' insp.id %}" style="font-size: 0.85rem; color: var(--admin-primary); text-decoration: none;">Modifier</a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p style="color: var(--admin-text-muted); font-size: 0.9rem;">Aucune visite technique enregistrée.</p>
+            {% endif %}
+        </div>
+        
+        <!-- ASSURANCE -->
+        <div class="admin-card" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--admin-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="shield" style="width:18px;height:18px;"></i> Assurances</h3>
+                <a href="{% url 'core:admin_insurance_add' %}?car={{ car.id }}" class="admin-btn admin-btn-sm admin-btn-outline"><i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter</a>
+            </div>
+            
+            {% if car.insurances.exists %}
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
+                {% for ins in car.insurances.all %}
+                <li style="padding: 12px; border: 1px solid var(--admin-border); border-radius: 6px; background: #fafafa;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <strong>{{ ins.company }}</strong>
+                        <span class="badge badge-{% if ins.status == 'expired' %}red{% elif ins.status == 'expiring_soon' %}orange{% else %}green{% endif %}">{{ ins.status_label }}</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--admin-text-muted);">
+                        Expire le : {{ ins.expiry_date|date:"d M Y" }}<br>
+                        Type : {{ ins.get_insurance_type_display }}
+                    </div>
+                    <div style="margin-top: 8px; text-align: right;">
+                        <a href="{% url 'core:admin_insurance_edit' ins.id %}" style="font-size: 0.85rem; color: var(--admin-primary); text-decoration: none;">Modifier</a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p style="color: var(--admin-text-muted); font-size: 0.9rem;">Aucune assurance enregistrée.</p>
+            {% endif %}
+        </div>
+        
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}

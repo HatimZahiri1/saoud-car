@@ -816,7 +816,10 @@ def admin_inspection_add(request):
         messages.success(request, 'Visite technique ajoutée avec succès !')
         return redirect('core:admin_inspections')
 
-    context = {'cars': Car.objects.all()}
+    context = {
+        'cars': Car.objects.all(),
+        'selected_car_id': request.GET.get('car')
+    }
     return render(request, 'core/admin/inspection_form.html', context)
 
 
@@ -879,6 +882,7 @@ def admin_insurance_add(request):
     context = {
         'cars': Car.objects.all(),
         'insurance_types': Insurance.TYPE_CHOICES,
+        'selected_car_id': request.GET.get('car'),
     }
     return render(request, 'core/admin/insurance_form.html', context)
 

@@ -12,8 +12,8 @@
                 <label>Voiture *</label>
                 <select name="car" required>
                     <option value="">— Sélectionner —</option>
-                    {% for car in cars %}
-                    <option value="{{ car.id }}" {% if inspection and inspection.car_id == car.id %}selected{% endif %}>{{ car.get_brand_display }} {{ car.name }}</option>
+                    {% for c in cars %}
+                    <option value="{{ c.id }}" {% if inspection and inspection.car_id == c.id %}selected{% elif selected_car_id and selected_car_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.get_brand_display }} {{ c.name }}</option>
                     {% endfor %}
                 </select>
             </div>
