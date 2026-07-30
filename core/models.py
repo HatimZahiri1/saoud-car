@@ -67,6 +67,7 @@ class Car(models.Model):
     mileage = models.PositiveIntegerField(default=0, verbose_name="Kilométrage")
     color = models.CharField(max_length=50, blank=True, verbose_name="Couleur")
     is_available = models.BooleanField(default=True, verbose_name="Disponible")
+    expected_return_date = models.DateField(null=True, blank=True, verbose_name="Date de retour prévue")
     featured = models.BooleanField(default=False, verbose_name="Affiché en page d'accueil")
     image = models.ImageField(upload_to='cars/', blank=True, null=True, verbose_name="Photo du véhicule")
     image_url = models.URLField(blank=True, verbose_name="URL de l'image (ancien)")

@@ -14,40 +14,46 @@
         <thead>
             <tr>
                 <th>Voiture</th>
-                <th>Date visite</th>
+                <th>Dernière visite</th>
                 <th>Expiration</th>
                 <th>Résultat</th>
-                <th>Centre</th>
                 <th>Statut</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for insp in all_inspections %}
+            {% for item in car_list %}
             <tr>
-                <td><strong>{{ insp.car }}</strong></td>
-                <td>{{ insp.inspection_date|date:"d/m/Y" }}</td>
-                <td>{{ insp.expiry_date|date:"d/m/Y" }}</td>
-                <td>
-                    {% if insp.result == 'favorable' %}<span class="badge badge-green">Favorable</span>
-                    {% else %}<span class="badge badge-red">Défavorable</span>{% endif %}
-                </td>
-                <td>{{ insp.center_name|default:"—" }}</td>
-                <td>
-                    {% if insp.status == 'valid' %}<span class="badge badge-green">Valide</span>
-                    {% elif insp.status == 'expiring_soon' %}<span class="badge badge-yellow">Expire bientôt</span>
-                    {% else %}<span class="badge badge-red">Expiré</span>{% endif %}
-                </td>
-                <td>
-                    <div class="admin-actions">
-                        {% if insp.document %}<a href="{{ insp.document.url }}" class="admin-btn admin-btn-sm admin-btn-outline" title="Document" target="_blank"><i data-lucide="file" style="width:14px;height:14px;"></i></a>{% endif %}
-                        <a href="{% url 'core:admin_inspection_edit' insp.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
-                        <a href="{% url 'core:admin_inspection_delete' insp.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer ?');"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></a>
-                    </div>
-                </td>
+                <td><strong>{{ item.car.brand.name }} {{ item.car.model }}</strong><br><small style="color:#888;">{{ item.car.registration_number }}</small></td>
+                {% if item.latest_inspection %}
+                    <td>{{ item.latest_inspection.inspection_date|date:"d/m/Y" }}</td>
+                    <td>{{ item.latest_inspection.expiry_date|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if item.latest_inspection.result == 'favorable' %}<span class="badge badge-green">Favorable</span>
+                        {% else %}<span class="badge badge-red">Défavorable</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if item.is_valid %}<span class="badge badge-green">Valide</span>
+                        {% else %}<span class="badge badge-red">Expiré</span>{% endif %}
+                    </td>
+                    <td>
+                        <div class="admin-actions">
+                            {% if item.latest_inspection.document %}<a href="{{ item.latest_inspection.document.url }}" class="admin-btn admin-btn-sm admin-btn-outline" title="Document" target="_blank"><i data-lucide="file" style="width:14px;height:14px;"></i></a>{% endif %}
+                            <a href="{% url 'core:admin_inspection_edit' item.latest_inspection.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier la visite"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
+                            <a href="{% url 'core:admin_inspection_add' %}?car={{ item.car.id }}" class="admin-btn admin-btn-sm admin-btn-primary" title="Ajouter nouvelle visite"><i data-lucide="plus" style="width:14px;height:14px;"></i></a>
+                        </div>
+                    </td>
+                {% else %}
+                    <td colspan="4" style="color:#aaa; font-style:italic;">Aucune visite technique enregistrée</td>
+                    <td>
+                        <div class="admin-actions">
+                            <a href="{% url 'core:admin_inspection_add' %}?car={{ item.car.id }}" class="admin-btn admin-btn-sm admin-btn-primary" title="Ajouter nouvelle visite"><i data-lucide="plus" style="width:14px;height:14px;"></i></a>
+                        </div>
+                    </td>
+                {% endif %}
             </tr>
             {% empty %}
-            <tr><td colspan="7" class="admin-empty"><p>Aucune visite technique enregistrée</p></td></tr>
+            <tr><td colspan="6" class="admin-empty"><p>Aucun véhicule disponible</p></td></tr>
             {% endfor %}
         </tbody>
     </table>

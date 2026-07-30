@@ -102,6 +102,41 @@
     </div>
 </div>
 
+<!-- Rented Cars List -->
+{% if rented_cars_list %}
+<div class="admin-table-wrapper" style="margin-top:24px;">
+    <div class="admin-table-header">
+        <h2 style="color:#d97706;"><i data-lucide="key" style="width:20px;height:20px;display:inline-block;vertical-align:-4px;"></i> Véhicules actuellement en location ({{ rented_cars_list|length }})</h2>
+    </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Véhicule</th>
+                <th>Immatriculation</th>
+                <th>Date de retour prévue</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for car in rented_cars_list %}
+            <tr>
+                <td><strong>{{ car.brand.name }} {{ car.model }}</strong></td>
+                <td><span style="font-family:monospace;background:#f3f4f6;padding:2px 6px;border-radius:4px;">{{ car.registration_number }}</span></td>
+                <td>
+                    {% if car.expected_return_date %}
+                        <strong>{{ car.expected_return_date|date:"d/m/Y" }}</strong>
+                    {% else %}
+                        <span style="color:#9ca3af;font-style:italic;">Non spécifiée</span>
+                    {% endif %}
+                </td>
+                <td><span class="badge badge-yellow">En location</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
 <!-- Charts Row 1: Revenue Bar + Category Doughnut -->
 <div class="admin-charts-row" style="margin-top:24px;">
     <div class="admin-chart-card" style="border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);">

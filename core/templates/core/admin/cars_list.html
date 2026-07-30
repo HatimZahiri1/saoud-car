@@ -31,7 +31,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for car in all_cars %}
+            {% for car in cars %}
             <tr>
                 <td>
                     {% if car.get_image_url %}
@@ -49,7 +49,8 @@
                     {% if car.is_available %}
                     <span class="badge badge-green">Disponible</span>
                     {% else %}
-                    <span class="badge badge-red">Indisponible</span>
+                    <span class="badge badge-red">En location</span>
+                    {% if car.expected_return_date %}<br><small>Retour: {{ car.expected_return_date|date:"d/m/Y" }}</small>{% endif %}
                     {% endif %}
                 </td>
                 <td>
@@ -58,7 +59,23 @@
                     </a>
                 </td>
                 <td>
-                    <div class="admin-actions">
+                    <div class="admin-actions" style="flex-wrap:wrap; gap:8px;">
+                        {% if car.is_available %}
+                        <form method="post" style="display:inline-flex; align-items:center; gap:4px; margin:0;" onsubmit="return promptForDate(this);">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="mark_rented">
+                            <input type="hidden" name="car_id" value="{{ car.id }}">
+                            <input type="hidden" name="return_date" class="return_date_input">
+                            <button type="submit" class="admin-btn admin-btn-sm admin-btn-outline" title="Marquer en location" style="color:#d97706;border-color:#d97706;"><i data-lucide="calendar" style="width:14px;height:14px;"></i> Louer</button>
+                        </form>
+                        {% else %}
+                        <form method="post" style="display:inline-block; margin:0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="mark_available">
+                            <input type="hidden" name="car_id" value="{{ car.id }}">
+                            <button type="submit" class="admin-btn admin-btn-sm admin-btn-outline" title="Marquer comme disponible" style="color:#10b981;border-color:#10b981;"><i data-lucide="check-circle" style="width:14px;height:14px;"></i> Retour</button>
+                        </form>
+                        {% endif %}
                         <a href="{% url 'core:admin_car_edit' car.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier">
                             <i data-lucide="edit-2" style="width:14px;height:14px;"></i>
                         </a>
@@ -80,4 +97,20 @@
         </tbody>
     </table>
 </div>
+
+<script>
+function promptForDate(form) {
+    const date = prompt("Veuillez saisir la date de retour prévue (ex: YYYY-MM-DD) :");
+    if (date) {
+        // basic regex check for YYYY-MM-DD
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            alert("Format de date invalide. Utilisez YYYY-MM-DD (ex: 2026-12-31).");
+            return false;
+        }
+        form.querySelector('.return_date_input').value = date;
+        return true;
+    }
+    return false; // cancel submission
+}
+</script>
 {% endblock %}

@@ -14,39 +14,43 @@
         <thead>
             <tr>
                 <th>Voiture</th>
-                <th>Compagnie</th>
+                <th>Dernière compagnie</th>
                 <th>Type</th>
-                <th>N° Police</th>
                 <th>Expiration</th>
-                <th>Prime (MAD)</th>
                 <th>Statut</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for ins in all_insurances %}
+            {% for item in car_list %}
             <tr>
-                <td><strong>{{ ins.car }}</strong></td>
-                <td>{{ ins.company }}</td>
-                <td>{{ ins.get_insurance_type_display }}</td>
-                <td>{{ ins.policy_number|default:"—" }}</td>
-                <td>{{ ins.expiry_date|date:"d/m/Y" }}</td>
-                <td>{{ ins.annual_premium|floatformat:0 }}</td>
-                <td>
-                    {% if ins.status == 'valid' %}<span class="badge badge-green">Valide</span>
-                    {% elif ins.status == 'expiring_soon' %}<span class="badge badge-yellow">Expire bientôt</span>
-                    {% else %}<span class="badge badge-red">Expiré</span>{% endif %}
-                </td>
-                <td>
-                    <div class="admin-actions">
-                        {% if ins.document %}<a href="{{ ins.document.url }}" class="admin-btn admin-btn-sm admin-btn-outline" title="Document" target="_blank"><i data-lucide="file" style="width:14px;height:14px;"></i></a>{% endif %}
-                        <a href="{% url 'core:admin_insurance_edit' ins.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
-                        <a href="{% url 'core:admin_insurance_delete' ins.id %}" class="admin-btn admin-btn-sm admin-btn-danger" title="Supprimer" onclick="return confirm('Supprimer ?');"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></a>
-                    </div>
-                </td>
+                <td><strong>{{ item.car.brand.name }} {{ item.car.model }}</strong><br><small style="color:#888;">{{ item.car.registration_number }}</small></td>
+                {% if item.latest_insurance %}
+                    <td>{{ item.latest_insurance.company }}</td>
+                    <td>{{ item.latest_insurance.get_insurance_type_display }}</td>
+                    <td>{{ item.latest_insurance.expiry_date|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if item.is_valid %}<span class="badge badge-green">Valide</span>
+                        {% else %}<span class="badge badge-red">Expiré</span>{% endif %}
+                    </td>
+                    <td>
+                        <div class="admin-actions">
+                            {% if item.latest_insurance.document %}<a href="{{ item.latest_insurance.document.url }}" class="admin-btn admin-btn-sm admin-btn-outline" title="Document" target="_blank"><i data-lucide="file" style="width:14px;height:14px;"></i></a>{% endif %}
+                            <a href="{% url 'core:admin_insurance_edit' item.latest_insurance.id %}" class="admin-btn admin-btn-sm admin-btn-outline" title="Modifier l'assurance"><i data-lucide="edit" style="width:14px;height:14px;"></i></a>
+                            <a href="{% url 'core:admin_insurance_add' %}?car={{ item.car.id }}" class="admin-btn admin-btn-sm admin-btn-primary" title="Ajouter nouvelle assurance"><i data-lucide="plus" style="width:14px;height:14px;"></i></a>
+                        </div>
+                    </td>
+                {% else %}
+                    <td colspan="4" style="color:#aaa; font-style:italic;">Aucune assurance enregistrée</td>
+                    <td>
+                        <div class="admin-actions">
+                            <a href="{% url 'core:admin_insurance_add' %}?car={{ item.car.id }}" class="admin-btn admin-btn-sm admin-btn-primary" title="Ajouter nouvelle assurance"><i data-lucide="plus" style="width:14px;height:14px;"></i></a>
+                        </div>
+                    </td>
+                {% endif %}
             </tr>
             {% empty %}
-            <tr><td colspan="8" class="admin-empty"><p>Aucune assurance enregistrée</p></td></tr>
+            <tr><td colspan="6" class="admin-empty"><p>Aucun véhicule disponible</p></td></tr>
             {% endfor %}
         </tbody>
     </table>

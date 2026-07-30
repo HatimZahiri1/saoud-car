@@ -72,6 +72,32 @@ def contact(request):
                 subject=subject,
                 message=message_text,
             )
+            
+            # Créer automatiquement un prospect dans la table Client s'il n'existe pas
+            from django.db.models import Q
+            from .models import Client
+            import time
+            
+            # Chercher si un client avec cet email ou ce téléphone existe déjà
+            existing_client = None
+            if email or phone:
+                query = Q()
+                if email:
+                    query |= Q(email=email)
+                if phone:
+                    query |= Q(phone=phone)
+                existing_client = Client.objects.filter(query).first()
+                
+            if not existing_client:
+                # Générer un CIN temporaire pour le prospect
+                placeholder_cin = f"PROSPECT-{int(time.time())}"
+                Client.objects.create(
+                    full_name=name,
+                    email=email,
+                    phone=phone,
+                    cin=placeholder_cin,
+                    address="Via Formulaire de Contact"
+                )
             messages.success(request, 'Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.')
             return redirect('core:contact')
         else:
@@ -283,6 +309,7 @@ def admin_dashboard(request):
         'total_contracts': total_contracts,
         'occupation_rate': occupation_rate,
         'avg_revenue': avg_revenue,
+        'rented_cars_list': Car.objects.filter(is_available=False).order_by('expected_return_date'),
         'top_cars': top_cars,
         'expiring_inspections': expiring_inspections,
         'expiring_insurances': expiring_insurances,
@@ -297,9 +324,30 @@ def admin_dashboard(request):
 # ============================================
 
 def admin_cars(request):
-    """Liste des voitures dans l'admin."""
-    all_cars = Car.objects.all()
-    context = {'all_cars': all_cars}
+    """Liste des voitures avec gestion rapide du statut."""
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        car_id = request.POST.get('car_id')
+        if action and car_id:
+            car = get_object_or_404(Car, id=car_id)
+            if action == 'mark_rented':
+                return_date = request.POST.get('return_date')
+                if return_date:
+                    car.is_available = False
+                    car.expected_return_date = return_date
+                    car.save()
+                    messages.success(request, f'{car.brand.name} {car.model} marquée en location.')
+                else:
+                    messages.error(request, 'Veuillez préciser une date de retour prévue.')
+            elif action == 'mark_available':
+                car.is_available = True
+                car.expected_return_date = None
+                car.save()
+                messages.success(request, f'{car.brand.name} {car.model} marquée comme disponible.')
+        return redirect('core:admin_cars')
+
+    cars = Car.objects.all().order_by('-id')
+    context = {'cars': cars}
     return render(request, 'core/admin/cars_list.html', context)
 
 
@@ -887,9 +935,19 @@ def admin_contracts_export_excel(request):
 # ============================================
 
 def admin_inspections(request):
-    """Liste des visites techniques."""
-    all_inspections = TechnicalInspection.objects.select_related('car').all()
-    context = {'all_inspections': all_inspections}
+    """Liste des visites techniques par véhicule."""
+    cars = Car.objects.all().prefetch_related('inspections')
+    car_list = []
+    today = datetime.date.today()
+    for car in cars:
+        latest = car.inspections.order_by('-expiry_date').first()
+        is_valid = latest.expiry_date >= today if latest and latest.expiry_date else False
+        car_list.append({
+            'car': car,
+            'latest_inspection': latest,
+            'is_valid': is_valid
+        })
+    context = {'car_list': car_list}
     return render(request, 'core/admin/inspections_list.html', context)
 
 
@@ -910,10 +968,7 @@ def admin_inspection_add(request):
         messages.success(request, 'Visite technique ajoutée avec succès !')
         return redirect('core:admin_inspections')
 
-    context = {
-        'cars': Car.objects.all(),
-        'selected_car_id': request.GET.get('car')
-    }
+    context = {'cars': Car.objects.all()}
     return render(request, 'core/admin/inspection_form.html', context)
 
 
@@ -939,8 +994,10 @@ def admin_inspection_edit(request, inspection_id):
 
 def admin_inspection_delete(request, inspection_id):
     """Supprimer une visite technique."""
-    get_object_or_404(TechnicalInspection, id=inspection_id).delete()
-    messages.success(request, 'Visite technique supprimée avec succès !')
+    inspection = get_object_or_404(TechnicalInspection, id=inspection_id)
+    if request.method == 'POST':
+        inspection.delete()
+        messages.success(request, 'Visite technique supprimée avec succès !')
     return redirect('core:admin_inspections')
 
 
@@ -949,9 +1006,19 @@ def admin_inspection_delete(request, inspection_id):
 # ============================================
 
 def admin_insurances(request):
-    """Liste des assurances."""
-    all_insurances = Insurance.objects.select_related('car').all()
-    context = {'all_insurances': all_insurances}
+    """Liste des assurances par véhicule."""
+    cars = Car.objects.all().prefetch_related('insurances')
+    car_list = []
+    today = datetime.date.today()
+    for car in cars:
+        latest = car.insurances.order_by('-expiry_date').first()
+        is_valid = latest.expiry_date >= today if latest and latest.expiry_date else False
+        car_list.append({
+            'car': car,
+            'latest_insurance': latest,
+            'is_valid': is_valid
+        })
+    context = {'car_list': car_list}
     return render(request, 'core/admin/insurances_list.html', context)
 
 
