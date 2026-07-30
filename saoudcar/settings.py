@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'saoudcar.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        default='postgresql://postgres.xrgutopbmdqiximphzml:Zahiri%4012%40%40@aws-0-eu-west-1.pooler.supabase.com:5432/postgres',
         conn_max_age=600,
     )
 }
