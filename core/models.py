@@ -25,6 +25,15 @@ class Brand(models.Model):
     def car_count(self):
         return self.cars.count()
 
+    def get_logo_url(self):
+        """Returns the logo URL, preferring uploaded image over URL field."""
+        if self.logo:
+            try:
+                return self.logo.url
+            except ValueError:
+                return self.logo_url or ''
+        return self.logo_url or ''
+
 
 # ============================================
 #  MODÈLE VOITURE (Modifié)

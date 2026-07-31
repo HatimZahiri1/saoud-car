@@ -20,7 +20,7 @@
                 <label>Logo</label>
                 <input type="file" name="logo" accept="image/*">
                 {% if brand and brand.logo %}
-                <div class="current-image-preview"><img src="{{ brand.logo.url }}" alt="{{ brand.name }}" style="width:80px;height:80px;object-fit:contain;"></div>
+                <div class="current-image-preview"><img src="{{ brand.get_logo_url }}" alt="{{ brand.name }}" style="width:80px;height:80px;object-fit:contain;"></div>
                 {% endif %}
             </div>
             <div class="admin-form-actions">
