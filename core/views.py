@@ -336,14 +336,14 @@ def admin_cars(request):
                     car.is_available = False
                     car.expected_return_date = return_date
                     car.save()
-                    messages.success(request, f'{car.brand.name} {car.model} marquée en location.')
+                    messages.success(request, f'{car.get_brand_display()} {car.name} marquée en location.')
                 else:
                     messages.error(request, 'Veuillez préciser une date de retour prévue.')
             elif action == 'mark_available':
                 car.is_available = True
                 car.expected_return_date = None
                 car.save()
-                messages.success(request, f'{car.brand.name} {car.model} marquée comme disponible.')
+                messages.success(request, f'{car.get_brand_display()} {car.name} marquée comme disponible.')
         return redirect('core:admin_cars')
 
     cars = Car.objects.all().order_by('-id')
