@@ -344,6 +344,84 @@ class ContactMessage(models.Model):
 # ============================================
 #  MODÈLE PARAMÈTRES AGENCE
 # ============================================
+
+DEFAULT_CONDITIONS = """Article 1 – État du véhicule
+Le véhicule est remis au locataire en parfait état de marche.
+Le locataire doit vérifier immédiatement l’état du véhicule ainsi que les accessoires fournis (roue de secours, outils, etc.).
+Le véhicule doit être restitué dans le même état que celui constaté lors de la remise.
+
+Le locataire doit :
+Ne faire aucune modification au véhicule.
+Retourner le véhicule propre.
+Respecter la limite de 200 km par jour, sauf accord contraire.
+S’assurer que le compteur reste lisible et intact.
+Tout dommage non signalé lors du retour sera à la charge du locataire.
+
+Article 2 – Utilisation du véhicule
+La location est personnelle et non transmissible.
+Le locataire s’engage à :
+Utiliser le véhicule uniquement pour ses besoins personnels.
+Respecter le code de la route.
+Ne permettre la conduite qu’aux conducteurs autorisés et mentionnés au contrat.
+Il est strictement interdit de :
+Transporter des marchandises contre rémunération.
+Utiliser le véhicule pour des courses, rallyes ou compétitions.
+Transporter des objets dangereux.
+Utiliser le véhicule pour pousser un autre véhicule.
+Faire du remorquage.
+Toute utilisation contraire engage la responsabilité totale du locataire.
+
+Article 3 – Carburant et lubrifiants
+Le carburant est entièrement à la charge du locataire.
+Le locataire doit contrôler régulièrement :
+Les niveaux d’huile
+Le liquide de frein
+Le liquide de refroidissement
+Les frais de graissage et d’entretien courant sont à la charge du locataire.
+Il devra fournir des factures justifiant les opérations effectuées (avec indication du kilométrage).
+
+Article 4 – Entretien et réparations
+Les réparations dues à l’usure normale sont à la charge du loueur.
+Les réparations dues à une mauvaise utilisation, un accident ou une négligence sont à la charge du locataire.
+Le locataire ne peut effectuer aucune réparation sans autorisation préalable du loueur, sauf en cas d’urgence.
+Toute immobilisation du véhicule causée par une mauvaise utilisation entraîne une indemnité.
+
+Article 5 – Assurance et accident
+L’assurance couvre :
+Les dommages causés au véhicule conformément au contrat.
+La responsabilité civile obligatoire.
+Le locataire reste responsable :
+Des dommages résultant d’une mauvaise utilisation.
+Des vols causés par négligence (véhicule non fermé, clés laissées à l’intérieur).
+Des objets personnels transportés.
+En cas d’accident :
+Le locataire doit informer immédiatement la société.
+Remplir un constat amiable.
+Fournir les coordonnées des témoins éventuels.
+
+Article 6 – Règlement – Prépaiement – Prolongation
+Le prépaiement sert uniquement à réserver la location.
+Toute prolongation doit être validée et réglée auprès de la société.
+Les frais supplémentaires (carburant, retards, dommages, jours ajoutés) sont à la charge du locataire.
+La société se réserve le droit de récupérer le véhicule à tout moment en cas de non-respect du contrat.
+
+Article 7 – Documents du véhicule
+Le locataire doit restituer :
+La carte grise
+L’assurance
+Les clés
+Les documents du véhicule
+En cas de perte, les frais de duplicata seront à la charge du locataire.
+
+Article 8 – Responsabilité
+Le locataire est responsable :
+De toute amende ou infraction commise durant la location.
+Des dommages causés au véhicule non couverts par l’assurance.
+De la perte d’objets ou d’accessoires fournis.
+
+Article 9 – Juridiction
+En cas de litige, les tribunaux compétents seront ceux du lieu de signature du contrat."""
+
 class AgencyInfo(models.Model):
     name = models.CharField(max_length=100, default="SAOUD CAR", verbose_name="Raison Sociale")
     email = models.EmailField(default="saoud88000@gmail.com", verbose_name="Email")
@@ -362,6 +440,13 @@ class AgencyInfo(models.Model):
     if_tax = models.CharField(max_length=50, default="40 39 14 74", verbose_name="IF")
     cnss = models.CharField(max_length=50, default="8744080", verbose_name="CNSS")
     tva = models.PositiveIntegerField(default=20, verbose_name="TVA (%)")
+
+    # Identité Visuelle et Contrat
+    conditions_generales = models.TextField(default=DEFAULT_CONDITIONS, verbose_name="Conditions Générales")
+    logo = models.ImageField(upload_to='agency/', blank=True, null=True, verbose_name="Logo")
+    stamp = models.ImageField(upload_to='agency/', blank=True, null=True, verbose_name="Cachet")
+    show_stamp_on_contract = models.BooleanField(default=True, verbose_name="Afficher Sur le Contrat")
+    show_stamp_on_invoice = models.BooleanField(default=True, verbose_name="Afficher Sur la Facture")
 
     class Meta:
         verbose_name = "Informations de l'agence"

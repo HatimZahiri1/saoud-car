@@ -1186,6 +1186,17 @@ def admin_agency_settings(request):
         agency.if_tax = request.POST.get('if_tax', agency.if_tax)
         agency.cnss = request.POST.get('cnss', agency.cnss)
         agency.tva = request.POST.get('tva', agency.tva)
+        
+        # Nouvelles informations
+        agency.conditions_generales = request.POST.get('conditions_generales', agency.conditions_generales)
+        agency.show_stamp_on_contract = request.POST.get('show_stamp_on_contract') == 'on'
+        agency.show_stamp_on_invoice = request.POST.get('show_stamp_on_invoice') == 'on'
+        
+        if 'logo' in request.FILES:
+            agency.logo = request.FILES['logo']
+        if 'stamp' in request.FILES:
+            agency.stamp = request.FILES['stamp']
+            
         agency.save()
         messages.success(request, "Paramètres de l'agence mis à jour.")
         return redirect('core:admin_agency_settings')
