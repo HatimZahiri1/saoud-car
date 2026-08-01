@@ -1,6 +1,109 @@
 {% extends 'core/admin/base_admin.html' %}
 {% block title %}Réservations{% endblock %}
 
+{% block extra_head %}
+<style>
+.res-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.res-stat {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.res-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.res-stat-icon i { width: 22px; height: 22px; }
+.res-stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    font-family: var(--font-heading);
+    line-height: 1;
+}
+.res-stat-label {
+    font-size: 0.82rem;
+    color: var(--admin-text-muted);
+    margin-top: 2px;
+}
+.res-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.res-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 1fr 1fr 1fr auto;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+    gap: 12px;
+}
+.res-row:hover { background: #fafbfc; }
+.res-row:last-child { border-bottom: none; }
+.res-row-header {
+    background: #f8f9fa;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--admin-text-muted);
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--admin-border);
+}
+.res-client-name { font-weight: 600; }
+.res-client-phone { font-size: 0.82rem; color: var(--admin-text-muted); }
+.res-car-name { font-weight: 600; }
+.res-car-plate { font-size: 0.82rem; color: var(--admin-text-muted); }
+.res-date {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+.status-en-attente {
+    background: #fef3c7;
+    color: #b45309;
+}
+.status-confirmee {
+    background: #d1fae5;
+    color: #047857;
+}
+.status-annulee {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+@media (max-width: 900px) {
+    .res-row { grid-template-columns: 1fr; gap: 8px; }
+    .res-row-header { display: none; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="admin-header">
     <div class="admin-header-title">
@@ -12,59 +115,86 @@
     </a>
 </div>
 
-<div class="admin-card">
-    <div class="table-container">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Client</th>
-                    <th>Voiture</th>
-                    <th>Du</th>
-                    <th>Au</th>
-                    <th>Statut</th>
-                    <th style="text-align: right;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in reservations %}
-                <tr>
-                    <td>
-                        <div style="font-weight: 600;">{{ r.client.full_name }}</div>
-                        <div style="font-size: 0.85rem; color: #666;">{{ r.client.phone }}</div>
-                    </td>
-                    <td>
-                        <div style="font-weight: 600;">{{ r.car.get_brand_display }} {{ r.car.name }}</div>
-                        <div style="font-size: 0.85rem; color: #666;">{{ r.car.license_plate }}</div>
-                    </td>
-                    <td>{{ r.start_date|date:"d/m/Y" }}</td>
-                    <td>{{ r.end_date|date:"d/m/Y" }}</td>
-                    <td>
-                        {% if r.status == 'en_attente' %}
-                            <span class="badge badge-warning">En attente</span>
-                        {% elif r.status == 'confirmee' %}
-                            <span class="badge badge-success" style="background-color: #e6f4ea; color: #137333;">Confirmée</span>
-                        {% elif r.status == 'annulee' %}
-                            <span class="badge badge-error">Annulée</span>
-                        {% else %}
-                            {{ r.get_status_display }}
-                        {% endif %}
-                    </td>
-                    <td style="text-align: right;">
-                        <a href="{% url 'core:admin_reservation_edit' r.id %}" class="action-btn" title="Modifier">
-                            <i data-lucide="edit-2"></i>
-                        </a>
-                        <a href="{% url 'core:admin_reservation_delete' r.id %}" class="action-btn text-danger" title="Supprimer" onclick="return confirm('Confirmer la suppression ?');">
-                            <i data-lucide="trash-2"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" style="text-align: center; color: #777;">Aucune réservation.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="res-stats">
+    <div class="res-stat">
+        <div class="res-stat-icon" style="background: #eff6ff; color: #2563eb;">
+            <i data-lucide="calendar"></i>
+        </div>
+        <div>
+            <div class="res-stat-value">{{ reservations|length }}</div>
+            <div class="res-stat-label">Total réservations</div>
+        </div>
     </div>
+    <div class="res-stat">
+        <div class="res-stat-icon" style="background: #fef3c7; color: #b45309;">
+            <i data-lucide="clock"></i>
+        </div>
+        <div>
+            {% with pending=0 %}
+            {% for r in reservations %}{% if r.status == 'en_attente' %}{% with pending=pending|add:"1" %}{% endwith %}{% endif %}{% endfor %}
+            <div class="res-stat-value">{{ pending }}</div>
+            {% endwith %}
+            <div class="res-stat-label">En attente</div>
+        </div>
+    </div>
+    <div class="res-stat">
+        <div class="res-stat-icon" style="background: #d1fae5; color: #047857;">
+            <i data-lucide="check-circle"></i>
+        </div>
+        <div>
+            {% with confirmed=0 %}
+            {% for r in reservations %}{% if r.status == 'confirmee' %}{% with confirmed=confirmed|add:"1" %}{% endwith %}{% endif %}{% endfor %}
+            <div class="res-stat-value">{{ confirmed }}</div>
+            {% endwith %}
+            <div class="res-stat-label">Confirmées</div>
+        </div>
+    </div>
+</div>
+
+<div class="res-card">
+    <div class="res-row res-row-header">
+        <div>Client</div>
+        <div>Voiture</div>
+        <div>Du</div>
+        <div>Au</div>
+        <div>Statut</div>
+        <div style="text-align: right;">Actions</div>
+    </div>
+    {% for r in reservations %}
+    <div class="res-row">
+        <div>
+            <div class="res-client-name">{{ r.client.full_name }}</div>
+            <div class="res-client-phone">{{ r.client.phone }}</div>
+        </div>
+        <div>
+            <div class="res-car-name">{{ r.car.get_brand_display }} {{ r.car.name }}</div>
+            <div class="res-car-plate">{{ r.car.license_plate }}</div>
+        </div>
+        <div class="res-date">{{ r.start_date|date:"d/m/Y" }}</div>
+        <div class="res-date">{{ r.end_date|date:"d/m/Y" }}</div>
+        <div>
+            {% if r.status == 'en_attente' %}
+                <span class="status-badge status-en-attente"><i data-lucide="clock" style="width:13px;height:13px;"></i> En attente</span>
+            {% elif r.status == 'confirmee' %}
+                <span class="status-badge status-confirmee"><i data-lucide="check-circle" style="width:13px;height:13px;"></i> Confirmée</span>
+            {% elif r.status == 'annulee' %}
+                <span class="status-badge status-annulee"><i data-lucide="x-circle" style="width:13px;height:13px;"></i> Annulée</span>
+            {% endif %}
+        </div>
+        <div style="text-align: right; display: flex; gap: 6px; justify-content: flex-end;">
+            <a href="{% url 'core:admin_reservation_edit' r.id %}" class="action-btn" title="Modifier">
+                <i data-lucide="edit-2"></i>
+            </a>
+            <a href="{% url 'core:admin_reservation_delete' r.id %}" class="action-btn text-danger" title="Supprimer" onclick="return confirm('Confirmer la suppression ?');">
+                <i data-lucide="trash-2"></i>
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div style="padding: 40px; text-align: center; color: #999;">
+        <i data-lucide="calendar" style="width: 40px; height: 40px; color: #ddd; margin-bottom: 12px;"></i>
+        <div>Aucune réservation.</div>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}

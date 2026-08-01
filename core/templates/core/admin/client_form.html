@@ -1,62 +1,337 @@
 {% extends 'core/admin/base_admin.html' %}
-{% block title %}{% if client %}Modifier le client{% else %}Nouveau client{% endif %}{% endblock %}
+{% block title %}{% if client %}Modifier le client{% else %}Nouveau Client{% endif %}{% endblock %}
+
+{% block extra_head %}
+<style>
+.client-layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+.section-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+}
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--admin-text);
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--admin-border);
+}
+.section-title i { color: var(--admin-blue); width: 20px; height: 20px; }
+.field-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--admin-text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.field-label .required { color: var(--admin-red); }
+.field-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-family: var(--font-body);
+    color: var(--admin-text);
+    background: var(--admin-surface);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field-input:focus {
+    outline: none;
+    border-color: var(--admin-blue);
+    box-shadow: 0 0 0 3px rgba(41, 121, 255, 0.1);
+}
+.field-input-icon {
+    position: relative;
+}
+.field-input-icon .icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--admin-blue);
+    width: 18px;
+    height: 18px;
+}
+.field-input-icon .field-input {
+    padding-left: 40px;
+}
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+.field-group { margin-bottom: 18px; }
+
+/* File Drop Zone */
+.drop-zone {
+    border: 2px dashed #c8d6e5;
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+    margin-bottom: 12px;
+    position: relative;
+}
+.drop-zone:hover {
+    border-color: var(--admin-blue);
+    background: #eef4ff;
+}
+.drop-zone.has-file {
+    border-color: var(--admin-green);
+    background: #f0fdf4;
+}
+.drop-zone .drop-icon {
+    color: var(--admin-blue);
+    margin-bottom: 8px;
+}
+.drop-zone .drop-text {
+    font-size: 0.85rem;
+    color: var(--admin-text-muted);
+}
+.drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.preview-img {
+    max-width: 100%;
+    max-height: 120px;
+    border-radius: 8px;
+    margin-top: 10px;
+    border: 1px solid var(--admin-border);
+}
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+@media (max-width: 900px) {
+    .client-layout { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="admin-page-header">
-    <h1>{% if client %}Modifier — {{ client.full_name }}{% else %}Nouveau client{% endif %}</h1>
-    <p>{% if client %}Modifier les informations du client{% else %}Enregistrer un nouveau client{% endif %}</p>
+<div class="admin-header">
+    <div class="admin-header-title">
+        <h1>{% if client %}Modifier — {{ client.full_name }}{% else %}Nouveau Client{% endif %}</h1>
+        <p>{% if client %}Modifier les informations du client.{% else %}Gestion de la base de données locataires.{% endif %}</p>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'core:admin_clients' %}" class="admin-btn">
+            <i data-lucide="arrow-left"></i> Retour
+        </a>
+        <button type="submit" form="clientForm" class="admin-btn admin-btn-primary">
+            <i data-lucide="save"></i> Enregistrer
+        </button>
+    </div>
 </div>
 
-<div class="admin-form-card">
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="admin-form-grid">
-            <div class="admin-form-group">
-                <label>Nom complet *</label>
-                <input type="text" name="full_name" value="{% if client %}{{ client.full_name }}{% endif %}" required placeholder="Ex: Mohammed Alami">
+<form method="post" enctype="multipart/form-data" id="clientForm">
+    {% csrf_token %}
+    <div class="client-layout">
+
+        <!-- ===== COLONNE GAUCHE ===== -->
+        <div>
+            <!-- Informations Personnelles -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i data-lucide="user"></i> Informations Personnelles
+                </div>
+                <div class="grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Nom <span class="required">*</span></label>
+                        <input type="text" name="last_name" class="field-input" placeholder="NOM" value="{% if client %}{{ client.last_name }}{% endif %}" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Prénom <span class="required">*</span></label>
+                        <input type="text" name="first_name" class="field-input" placeholder="Prénom" value="{% if client %}{{ client.first_name }}{% endif %}" required>
+                    </div>
+                </div>
+                <div class="grid-3">
+                    <div class="field-group">
+                        <label class="field-label">Genre</label>
+                        <select name="gender" class="field-input">
+                            <option value="">Choisir</option>
+                            <option value="homme" {% if client and client.gender == 'homme' %}selected{% endif %}>Homme</option>
+                            <option value="femme" {% if client and client.gender == 'femme' %}selected{% endif %}>Femme</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Date de naissance</label>
+                        <div class="field-input-icon">
+                            <i data-lucide="calendar" class="icon"></i>
+                            <input type="date" name="birth_date" class="field-input" value="{% if client and client.birth_date %}{{ client.birth_date|date:'Y-m-d' }}{% endif %}">
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Nationalité</label>
+                        <div class="field-input-icon">
+                            <i data-lucide="flag" class="icon"></i>
+                            <input type="text" name="nationality" class="field-input" placeholder="Nationalité" value="{% if client %}{{ client.nationality }}{% else %}Marocaine{% endif %}">
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="admin-form-group">
-                <label>CIN (Carte d'Identité) *</label>
-                <input type="text" name="cin" value="{% if client %}{{ client.cin }}{% endif %}" required placeholder="Ex: AB123456">
-            </div>
-            <div class="admin-form-group">
-                <label>Permis de conduire</label>
-                <input type="text" name="drivers_license" value="{% if client %}{{ client.drivers_license }}{% endif %}" placeholder="N° du permis">
-            </div>
-            <div class="admin-form-group">
-                <label>Téléphone *</label>
-                <input type="text" name="phone" value="{% if client %}{{ client.phone }}{% endif %}" required placeholder="Ex: 0661234567">
-            </div>
-            <div class="admin-form-group">
-                <label>Email</label>
-                <input type="email" name="email" value="{% if client %}{{ client.email }}{% endif %}" placeholder="Ex: client@email.com">
-            </div>
-            <div class="admin-form-group">
-                <label>Ville</label>
-                <input type="text" name="city" value="{% if client %}{{ client.city }}{% endif %}" placeholder="Ex: Ben Slimane">
-            </div>
-            <div class="admin-form-group full-width">
-                <label>Adresse</label>
-                <textarea name="address" rows="2" placeholder="Adresse complète">{% if client %}{{ client.address }}{% endif %}</textarea>
-            </div>
-            <div class="admin-form-group">
-                <label>CIN Recto (photo)</label>
-                <input type="file" name="cin_front" accept="image/*">
-                {% if client and client.cin_front %}
-                <div class="current-image-preview"><img src="{{ client.cin_front.url }}" alt="CIN Recto"></div>
-                {% endif %}
-            </div>
-            <div class="admin-form-group">
-                <label>CIN Verso (photo)</label>
-                <input type="file" name="cin_back" accept="image/*">
-                {% if client and client.cin_back %}
-                <div class="current-image-preview"><img src="{{ client.cin_back.url }}" alt="CIN Verso"></div>
-                {% endif %}
-            </div>
-            <div class="admin-form-actions">
-                <a href="{% url 'core:admin_clients' %}" class="admin-btn admin-btn-outline">Annuler</a>
-                <button type="submit" class="admin-btn admin-btn-primary">{% if client %}Enregistrer{% else %}Ajouter le client{% endif %}</button>
+
+            <!-- Pièces d'identité & Permis -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i data-lucide="id-card"></i> Pièces d'identité & Permis
+                </div>
+                <div class="grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Num de CIN <span class="required">*</span></label>
+                        <div class="field-input-icon">
+                            <i data-lucide="credit-card" class="icon"></i>
+                            <input type="text" name="cin" class="field-input" placeholder="AB123456" value="{% if client %}{{ client.cin }}{% endif %}" required>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Valable jusqu'au (CIN)</label>
+                        <input type="date" name="cin_expiry" class="field-input" value="{% if client and client.cin_expiry %}{{ client.cin_expiry|date:'Y-m-d' }}{% endif %}">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Num Passeport</label>
+                        <div class="field-input-icon">
+                            <i data-lucide="book-open" class="icon"></i>
+                            <input type="text" name="passport_number" class="field-input" placeholder="N° Passeport" value="{% if client %}{{ client.passport_number }}{% endif %}">
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Valable jusqu'au (Passeport)</label>
+                        <input type="date" name="passport_expiry" class="field-input" value="{% if client and client.passport_expiry %}{{ client.passport_expiry|date:'Y-m-d' }}{% endif %}">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Num Permis</label>
+                        <div class="field-input-icon">
+                            <i data-lucide="car" class="icon"></i>
+                            <input type="text" name="drivers_license" class="field-input" placeholder="N° Permis" value="{% if client %}{{ client.drivers_license }}{% endif %}">
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Délivré le</label>
+                        <input type="date" name="license_delivered" class="field-input" value="{% if client and client.license_delivered %}{{ client.license_delivered|date:'Y-m-d' }}{% endif %}">
+                    </div>
+                </div>
             </div>
         </div>
-    </form>
-</div>
+
+        <!-- ===== COLONNE DROITE ===== -->
+        <div>
+            <!-- Coordonnées -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i data-lucide="map-pin"></i> Coordonnées
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Téléphone <span class="required">*</span></label>
+                    <div class="field-input-icon">
+                        <i data-lucide="phone" class="icon"></i>
+                        <input type="text" name="phone" class="field-input" placeholder="0661234567" value="{% if client %}{{ client.phone }}{% endif %}" required>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Email</label>
+                    <div class="field-input-icon">
+                        <i data-lucide="mail" class="icon"></i>
+                        <input type="email" name="email" class="field-input" placeholder="client@email.com" value="{% if client %}{{ client.email }}{% endif %}">
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Adresse</label>
+                    <textarea name="address" class="field-input" rows="2" placeholder="Adresse complète">{% if client %}{{ client.address }}{% endif %}</textarea>
+                </div>
+                <div class="grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Ville</label>
+                        <input type="text" name="city" class="field-input" placeholder="Ville" value="{% if client %}{{ client.city }}{% endif %}">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Pays</label>
+                        <select name="country" class="field-input">
+                            <option value="">Choisir</option>
+                            <option value="Maroc" {% if not client or client.country == 'Maroc' %}selected{% endif %}>Maroc</option>
+                            <option value="France" {% if client and client.country == 'France' %}selected{% endif %}>France</option>
+                            <option value="Espagne" {% if client and client.country == 'Espagne' %}selected{% endif %}>Espagne</option>
+                            <option value="Belgique" {% if client and client.country == 'Belgique' %}selected{% endif %}>Belgique</option>
+                            <option value="Allemagne" {% if client and client.country == 'Allemagne' %}selected{% endif %}>Allemagne</option>
+                            <option value="Italie" {% if client and client.country == 'Italie' %}selected{% endif %}>Italie</option>
+                            <option value="Pays-Bas" {% if client and client.country == 'Pays-Bas' %}selected{% endif %}>Pays-Bas</option>
+                            <option value="Autre" {% if client and client.country == 'Autre' %}selected{% endif %}>Autre</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pièces Jointes -->
+            <div class="section-card">
+                <div class="section-title">
+                    <i data-lucide="paperclip"></i> Pièces Jointes
+                </div>
+
+                <label class="field-label">CIN Recto</label>
+                <div class="drop-zone {% if client and client.cin_front %}has-file{% endif %}" id="dropFront">
+                    <i data-lucide="upload-cloud" class="drop-icon" style="width: 32px; height: 32px;"></i>
+                    <div class="drop-text">Glissez ou cliquez pour ajouter (Recto)</div>
+                    <input type="file" name="cin_front" accept="image/*" onchange="previewFile(this, 'previewFront')">
+                    {% if client and client.cin_front %}
+                    <img src="{{ client.cin_front.url }}" class="preview-img" id="previewFront" alt="CIN Recto">
+                    {% else %}
+                    <img class="preview-img" id="previewFront" style="display:none;" alt="CIN Recto">
+                    {% endif %}
+                </div>
+
+                <label class="field-label" style="margin-top: 12px;">CIN Verso</label>
+                <div class="drop-zone {% if client and client.cin_back %}has-file{% endif %}" id="dropBack">
+                    <i data-lucide="upload-cloud" class="drop-icon" style="width: 32px; height: 32px;"></i>
+                    <div class="drop-text">Glissez ou cliquez pour ajouter (Verso)</div>
+                    <input type="file" name="cin_back" accept="image/*" onchange="previewFile(this, 'previewBack')">
+                    {% if client and client.cin_back %}
+                    <img src="{{ client.cin_back.url }}" class="preview-img" id="previewBack" alt="CIN Verso">
+                    {% else %}
+                    <img class="preview-img" id="previewBack" style="display:none;" alt="CIN Verso">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function previewFile(input, previewId) {
+    const preview = document.getElementById(previewId);
+    const dropZone = input.closest('.drop-zone');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            dropZone.classList.add('has-file');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
 {% endblock %}

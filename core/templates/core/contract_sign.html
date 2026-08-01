@@ -1,0 +1,320 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signer le Contrat — SAOUD CAR</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'core/images/logo.jpg' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .sign-container {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .sign-header {
+            background: linear-gradient(135deg, #0a0f1e 0%, #1a1f30 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+        .sign-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .sign-logo span { color: #E53935; }
+        .sign-subtitle {
+            margin-top: 6px;
+            font-size: 0.88rem;
+            color: rgba(255,255,255,0.6);
+        }
+        .sign-body { padding: 30px; }
+        .contract-info {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 28px;
+        }
+        .info-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 14px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .info-item-label {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-bottom: 2px;
+        }
+        .info-item-value {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+        .sig-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sig-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        .sig-canvas-container {
+            display: inline-block;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            background: #fafbfc;
+            overflow: hidden;
+            position: relative;
+        }
+        .sig-canvas {
+            display: block;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        .sig-hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+        .sig-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 14px;
+        }
+        .btn {
+            padding: 10px 24px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-outline {
+            background: white;
+            color: #64748b;
+            border: 1px solid #d1d5db;
+        }
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-primary {
+            background: #E53935;
+            color: white;
+        }
+        .btn-primary:hover { background: #c62828; }
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-block { width: 100%; justify-content: center; }
+        .success-msg {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: #d1fae5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        .success-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .success-text {
+            color: #64748b;
+            font-size: 0.92rem;
+        }
+        .already-signed {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+<div class="sign-container">
+    <div class="sign-header">
+        <div class="sign-logo">SAOUD<span>CAR</span></div>
+        <div class="sign-subtitle">Contrat de Location de Véhicule</div>
+    </div>
+
+    <div class="sign-body">
+        {% if already_signed %}
+        <div class="already-signed">
+            <div class="success-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="success-title">Contrat déjà signé</div>
+            <div class="success-text">Ce contrat a déjà été signé le {{ contract.client_signed_at|date:"d/m/Y à H:i" }}.</div>
+        </div>
+
+        {% elif signed_success %}
+        <div class="success-msg">
+            <div class="success-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="success-title">Signature enregistrée !</div>
+            <div class="success-text">Merci, votre signature a été enregistrée avec succès.<br>Le directeur a été notifié.</div>
+        </div>
+
+        {% else %}
+        <!-- Contract Info -->
+        <div class="contract-info">
+            <div class="info-title">Détails du contrat</div>
+            <div class="info-grid">
+                <div>
+                    <div class="info-item-label">Contrat N°</div>
+                    <div class="info-item-value">{{ contract.contract_number }}</div>
+                </div>
+                <div>
+                    <div class="info-item-label">Client</div>
+                    <div class="info-item-value">{{ contract.client.full_name }}</div>
+                </div>
+                <div>
+                    <div class="info-item-label">Véhicule</div>
+                    <div class="info-item-value">{{ contract.car.get_brand_display }} {{ contract.car.name }}</div>
+                </div>
+                <div>
+                    <div class="info-item-label">Période</div>
+                    <div class="info-item-value">{{ contract.start_date|date:"d/m/Y" }} — {{ contract.end_date|date:"d/m/Y" }}</div>
+                </div>
+                <div>
+                    <div class="info-item-label">Montant total</div>
+                    <div class="info-item-value" style="color: #E53935;">{{ contract.total_amount }} MAD</div>
+                </div>
+                <div>
+                    <div class="info-item-label">Caution</div>
+                    <div class="info-item-value">{{ contract.deposit }} MAD</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signature -->
+        <form method="POST" id="signForm">
+            {% csrf_token %}
+            <input type="hidden" name="signature_data" id="signatureData">
+
+            <div class="sig-section">
+                <div class="sig-label">Votre Signature</div>
+                <div class="sig-canvas-container">
+                    <canvas id="signCanvas" class="sig-canvas" width="400" height="160"></canvas>
+                </div>
+                <div class="sig-hint">Signez avec votre souris ou votre doigt</div>
+                <div class="sig-actions">
+                    <button type="button" class="btn btn-outline" onclick="clearSig()">Effacer</button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                ✍️ Signer le contrat
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+{% if not already_signed and not signed_success %}
+<script>
+const canvas = document.getElementById('signCanvas');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+let hasSigned = false;
+
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+}
+
+function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    hasSigned = true;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+}
+
+function draw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#000';
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+}
+
+function stopDraw() { drawing = false; }
+
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDraw);
+canvas.addEventListener('mouseleave', stopDraw);
+canvas.addEventListener('touchstart', startDraw);
+canvas.addEventListener('touchmove', draw);
+canvas.addEventListener('touchend', stopDraw);
+
+function clearSig() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasSigned = false;
+}
+
+document.getElementById('signForm').addEventListener('submit', function(e) {
+    if (!hasSigned) {
+        e.preventDefault();
+        alert('Veuillez signer avant de valider.');
+        return;
+    }
+    document.getElementById('signatureData').value = canvas.toDataURL('image/png');
+});
+</script>
+{% endif %}
+</body>
+</html>

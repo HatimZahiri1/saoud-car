@@ -1,62 +1,212 @@
 {% extends 'core/admin/base_admin.html' %}
 {% block title %}Vidanges / Entretiens{% endblock %}
 
+{% block extra_head %}
+<style>
+.maint-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.maint-stat {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.maint-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.maint-stat-icon i { width: 22px; height: 22px; }
+.maint-stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    font-family: var(--font-heading);
+    line-height: 1;
+}
+.maint-stat-label {
+    font-size: 0.82rem;
+    color: var(--admin-text-muted);
+    margin-top: 2px;
+}
+.maint-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.maint-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.2fr 0.8fr auto;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+    gap: 12px;
+}
+.maint-row:hover { background: #fafbfc; }
+.maint-row:last-child { border-bottom: none; }
+.maint-row-header {
+    background: #f8f9fa;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--admin-text-muted);
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--admin-border);
+}
+.maint-car-name { font-weight: 600; }
+.maint-car-plate { font-size: 0.82rem; color: var(--admin-text-muted); }
+.maint-km-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.maint-km-bar {
+    width: 100%;
+    height: 6px;
+    background: #eee;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.maint-km-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+.badge-due {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #fef2f2;
+    color: #dc2626;
+}
+.badge-ok {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #f0fdf4;
+    color: #16a34a;
+}
+.maint-cost {
+    font-weight: 700;
+    font-family: var(--font-heading);
+}
+
+@media (max-width: 900px) {
+    .maint-row { grid-template-columns: 1fr; gap: 8px; }
+    .maint-row-header { display: none; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="admin-header">
     <div class="admin-header-title">
         <h1>Vidanges & Entretiens</h1>
-        <p>Suivi de l'entretien de la flotte.</p>
+        <p>Suivi de l'entretien et des vidanges de la flotte.</p>
     </div>
     <a href="{% url 'core:admin_maintenance_add' %}" class="admin-btn admin-btn-primary">
         <i data-lucide="plus"></i> Nouvelle vidange
     </a>
 </div>
 
-<div class="admin-card">
-    <div class="table-container">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Voiture</th>
-                    <th>Date</th>
-                    <th>Km Actuel</th>
-                    <th>Prochaine Vidange (Km)</th>
-                    <th>Coût (MAD)</th>
-                    <th style="text-align: right;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for m in maintenances %}
-                <tr>
-                    <td>
-                        <div style="font-weight: 600;">{{ m.car.get_brand_display }} {{ m.car.name }}</div>
-                        <div style="font-size: 0.85rem; color: #666;">{{ m.car.license_plate }}</div>
-                    </td>
-                    <td>{{ m.date|date:"d/m/Y" }}</td>
-                    <td>{{ m.current_mileage }}</td>
-                    <td>
-                        {{ m.next_mileage }}
-                        {% if m.car.mileage and m.car.mileage >= m.next_mileage %}
-                            <span class="badge badge-error" style="margin-left: 5px;">À faire</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ m.cost }}</td>
-                    <td style="text-align: right;">
-                        <a href="{% url 'core:admin_maintenance_edit' m.id %}" class="action-btn" title="Modifier">
-                            <i data-lucide="edit-2"></i>
-                        </a>
-                        <a href="{% url 'core:admin_maintenance_delete' m.id %}" class="action-btn text-danger" title="Supprimer" onclick="return confirm('Confirmer la suppression ?');">
-                            <i data-lucide="trash-2"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" style="text-align: center; color: #777;">Aucune vidange enregistrée.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="maint-stats">
+    <div class="maint-stat">
+        <div class="maint-stat-icon" style="background: #eff6ff; color: #2563eb;">
+            <i data-lucide="droplet"></i>
+        </div>
+        <div>
+            <div class="maint-stat-value">{{ maintenances|length }}</div>
+            <div class="maint-stat-label">Total vidanges</div>
+        </div>
     </div>
+    <div class="maint-stat">
+        <div class="maint-stat-icon" style="background: #fef2f2; color: #dc2626;">
+            <i data-lucide="alert-triangle"></i>
+        </div>
+        <div>
+            {% with due_count=0 %}
+            <div class="maint-stat-value" id="dueCount">—</div>
+            {% endwith %}
+            <div class="maint-stat-label">À faire</div>
+        </div>
+    </div>
+</div>
+
+<div class="maint-card">
+    <div class="maint-row maint-row-header">
+        <div>Voiture</div>
+        <div>Date</div>
+        <div>Km Actuel</div>
+        <div>Prochaine Vidange</div>
+        <div>Coût</div>
+        <div style="text-align: right;">Actions</div>
+    </div>
+    {% for m in maintenances %}
+    <div class="maint-row">
+        <div>
+            <div class="maint-car-name">{{ m.car.get_brand_display }} {{ m.car.name }}</div>
+            <div class="maint-car-plate">{{ m.car.license_plate }}</div>
+        </div>
+        <div>{{ m.date|date:"d/m/Y" }}</div>
+        <div>
+            <div style="font-weight: 600;">{{ m.current_mileage|floatformat:0 }} km</div>
+        </div>
+        <div>
+            <div class="maint-km-progress">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                    <span>{{ m.next_mileage|floatformat:0 }} km</span>
+                    {% if m.car.mileage and m.car.mileage >= m.next_mileage %}
+                        <span class="badge-due"><i data-lucide="alert-circle" style="width:12px;height:12px;"></i> À faire</span>
+                    {% else %}
+                        <span class="badge-ok"><i data-lucide="check-circle" style="width:12px;height:12px;"></i> OK</span>
+                    {% endif %}
+                </div>
+                <div class="maint-km-bar">
+                    {% if m.car.mileage and m.next_mileage > m.current_mileage %}
+                    {% widthratio m.car.mileage m.next_mileage 100 as pct %}
+                    <div class="maint-km-fill" style="width: {{ pct|default:50 }}%; max-width: 100%; background: {% if m.car.mileage >= m.next_mileage %}#dc2626{% elif pct > 80 %}#f59e0b{% else %}#16a34a{% endif %};"></div>
+                    {% else %}
+                    <div class="maint-km-fill" style="width: 50%; background: #16a34a;"></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="maint-cost">{{ m.cost }} MAD</div>
+        <div style="text-align: right; display: flex; gap: 6px; justify-content: flex-end;">
+            <a href="{% url 'core:admin_maintenance_edit' m.id %}" class="action-btn" title="Modifier">
+                <i data-lucide="edit-2"></i>
+            </a>
+            <a href="{% url 'core:admin_maintenance_delete' m.id %}" class="action-btn text-danger" title="Supprimer" onclick="return confirm('Confirmer la suppression ?');">
+                <i data-lucide="trash-2"></i>
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div style="padding: 40px; text-align: center; color: #999;">
+        <i data-lucide="droplet" style="width: 40px; height: 40px; color: #ddd; margin-bottom: 12px;"></i>
+        <div>Aucune vidange enregistrée.</div>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}

@@ -1,83 +1,288 @@
 {% extends 'core/admin/base_admin.html' %}
 {% block title %}{% if contract %}Modifier le contrat{% else %}Nouveau contrat{% endif %}{% endblock %}
+
+{% block extra_head %}
+<style>
+.contract-layout { display: flex; flex-direction: column; gap: 24px; }
+.ct-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.ct-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px;
+    background: linear-gradient(135deg, #f8f9fa, #eef1f5);
+    border-bottom: 1px solid var(--admin-border);
+    font-weight: 700;
+}
+.ct-card-header .h-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; color: white;
+}
+.ct-card-header .h-icon i { width: 17px; height: 17px; }
+.ct-card-body { padding: 24px; }
+.ct-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.ct-field { margin-bottom: 18px; }
+.ct-label {
+    display: block; font-size: 0.78rem; font-weight: 600; color: var(--admin-text-muted);
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.ct-label .req { color: var(--admin-red); }
+.ct-input {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--admin-border); border-radius: 8px;
+    font-size: 0.92rem; font-family: var(--font-body); color: var(--admin-text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ct-input:focus {
+    outline: none; border-color: var(--admin-blue);
+    box-shadow: 0 0 0 3px rgba(41, 121, 255, 0.1);
+}
+.calc-box {
+    padding: 16px 20px; background: linear-gradient(135deg, #fef2f2, #fff5f5);
+    border-radius: 10px; border: 1px solid #fecaca;
+    font-size: 0.95rem; font-weight: 500;
+}
+
+/* Signature Canvas */
+.sig-area {
+    display: flex; gap: 24px; flex-wrap: wrap;
+}
+.sig-box {
+    flex: 1; min-width: 280px; text-align: center;
+    border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; background: #fafbfc;
+}
+.sig-title {
+    font-size: 0.82rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: #888; margin-bottom: 14px;
+}
+.sig-canvas-wrap {
+    position: relative; display: inline-block;
+    border: 2px solid #d1d5db; border-radius: 10px;
+    background: white; overflow: hidden;
+}
+.sig-canvas { cursor: crosshair; display: block; touch-action: none; }
+.sig-actions {
+    display: flex; gap: 8px; justify-content: center; margin-top: 12px;
+}
+.sig-btn {
+    padding: 6px 14px; border-radius: 6px; border: 1px solid #ddd;
+    background: white; font-size: 0.82rem; cursor: pointer;
+    display: flex; align-items: center; gap: 5px; font-family: var(--font-body);
+    transition: all 0.2s;
+}
+.sig-btn:hover { background: #f0f0f0; }
+.sig-btn-primary { background: var(--admin-blue); color: white; border-color: var(--admin-blue); }
+.sig-btn-primary:hover { background: #1565c0; }
+.sig-preview {
+    max-width: 300px; max-height: 100px; border: 1px solid #eee;
+    border-radius: 8px; margin-top: 10px;
+}
+
+/* Share Link */
+.share-link-box {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-radius: 10px; margin-top: 16px;
+}
+.share-link-input {
+    flex: 1; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px;
+    font-size: 0.85rem; font-family: var(--font-body); color: var(--admin-text);
+    background: white;
+}
+.copy-btn {
+    padding: 8px 16px; background: #16a34a; color: white; border: none;
+    border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 600;
+    font-family: var(--font-body); transition: background 0.2s;
+}
+.copy-btn:hover { background: #15803d; }
+
+@media (max-width: 768px) {
+    .ct-grid-2 { grid-template-columns: 1fr; }
+    .sig-area { flex-direction: column; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="admin-page-header">
-    <h1>{% if contract %}Modifier le contrat {{ contract.contract_number }}{% else %}Nouveau contrat de location{% endif %}</h1>
-    <p>{% if contract %}Modifier les informations du contrat{% else %}Créer un nouveau contrat de location{% endif %}</p>
+<div class="admin-header">
+    <div class="admin-header-title">
+        <h1>{% if contract %}Modifier — {{ contract.contract_number }}{% else %}Nouveau contrat de location{% endif %}</h1>
+        <p>{% if contract %}Modifier les informations du contrat.{% else %}Créer un nouveau contrat de location.{% endif %}</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <a href="{% url 'core:admin_contracts' %}" class="admin-btn">
+            <i data-lucide="arrow-left"></i> Retour
+        </a>
+    </div>
 </div>
 
-<div class="admin-form-card">
-    <form method="post">
-        {% csrf_token %}
-        <div class="admin-form-grid">
-            <div class="admin-form-group">
-                <label>Client *</label>
-                <select name="client" required>
-                    <option value="">— Sélectionner un client —</option>
-                    {% for client in clients %}
-                    <option value="{{ client.id }}" {% if contract and contract.client_id == client.id %}selected{% endif %}>{{ client.full_name }} ({{ client.cin }})</option>
-                    {% endfor %}
-                </select>
+<form method="post" enctype="multipart/form-data" id="contractForm">
+    {% csrf_token %}
+    <input type="hidden" name="director_signature_data" id="directorSignatureData">
+    <div class="contract-layout">
+
+        <!-- Informations du contrat -->
+        <div class="ct-card">
+            <div class="ct-card-header">
+                <div class="h-icon" style="background: #2563eb;"><i data-lucide="file-text"></i></div>
+                Informations du contrat
             </div>
-            <div class="admin-form-group">
-                <label>Voiture *</label>
-                <select name="car" required id="carSelect">
-                    <option value="" data-price="0">— Sélectionner une voiture —</option>
-                    {% for car in cars %}
-                    <option value="{{ car.id }}" data-price="{{ car.price_per_day }}" {% if contract and contract.car_id == car.id %}selected{% endif %}>{{ car.get_brand_display }} {{ car.name }} ({{ car.price_per_day }} MAD/j)</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="admin-form-group">
-                <label>Date de début *</label>
-                <input type="date" name="start_date" id="startDate" value="{% if contract %}{{ contract.start_date|date:'Y-m-d' }}{% endif %}" required>
-            </div>
-            <div class="admin-form-group">
-                <label>Date de fin *</label>
-                <input type="date" name="end_date" id="endDate" value="{% if contract %}{{ contract.end_date|date:'Y-m-d' }}{% endif %}" required>
-            </div>
-            <div class="admin-form-group">
-                <label>Prix par jour (MAD) *</label>
-                <input type="number" name="price_per_day" id="pricePerDay" step="0.01" value="{% if contract %}{{ contract.price_per_day }}{% endif %}" required>
-            </div>
-            <div class="admin-form-group">
-                <label>Caution (MAD)</label>
-                <input type="number" name="deposit" step="0.01" value="{% if contract %}{{ contract.deposit }}{% else %}0{% endif %}">
-            </div>
-            <div class="admin-form-group">
-                <label>Km au départ</label>
-                <input type="number" name="km_start" value="{% if contract %}{{ contract.km_start }}{% else %}0{% endif %}">
-            </div>
-            <div class="admin-form-group">
-                <label>Km au retour</label>
-                <input type="number" name="km_end" value="{% if contract %}{{ contract.km_end|default:'' }}{% endif %}" placeholder="À remplir au retour">
-            </div>
-            <div class="admin-form-group">
-                <label>Statut</label>
-                <select name="status">
-                    {% for code, label in statuses %}
-                    <option value="{{ code }}" {% if contract and contract.status == code %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="admin-form-group">
-                <label>Durée / Montant total</label>
-                <div id="calculatedInfo" style="padding:12px;background:#f5f5f5;border-radius:10px;font-size:0.9rem;color:#424242;">
-                    Sélectionnez les dates et le prix pour voir le calcul automatique
+            <div class="ct-card-body">
+                <div class="ct-grid-2">
+                    <div class="ct-field">
+                        <label class="ct-label">Client <span class="req">*</span></label>
+                        <select name="client" class="ct-input" required>
+                            <option value="">— Sélectionner un client —</option>
+                            {% for client in clients %}
+                            <option value="{{ client.id }}" {% if contract and contract.client_id == client.id %}selected{% endif %}>{{ client.full_name }} ({{ client.cin }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="ct-field">
+                        <label class="ct-label">Voiture <span class="req">*</span></label>
+                        <select name="car" class="ct-input" required id="carSelect">
+                            <option value="" data-price="0">— Sélectionner une voiture —</option>
+                            {% for car in cars %}
+                            <option value="{{ car.id }}" data-price="{{ car.price_per_day }}" {% if contract and contract.car_id == car.id %}selected{% endif %}>{{ car.get_brand_display }} {{ car.name }} ({{ car.price_per_day }} MAD/j)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="ct-grid-2">
+                    <div class="ct-field">
+                        <label class="ct-label">Date de début <span class="req">*</span></label>
+                        <input type="date" name="start_date" id="startDate" class="ct-input" value="{% if contract %}{{ contract.start_date|date:'Y-m-d' }}{% endif %}" required>
+                    </div>
+                    <div class="ct-field">
+                        <label class="ct-label">Date de fin <span class="req">*</span></label>
+                        <input type="date" name="end_date" id="endDate" class="ct-input" value="{% if contract %}{{ contract.end_date|date:'Y-m-d' }}{% endif %}" required>
+                    </div>
+                </div>
+                <div class="ct-grid-2">
+                    <div class="ct-field">
+                        <label class="ct-label">Prix par jour (MAD) <span class="req">*</span></label>
+                        <input type="number" name="price_per_day" id="pricePerDay" step="0.01" class="ct-input" value="{% if contract %}{{ contract.price_per_day }}{% endif %}" required>
+                    </div>
+                    <div class="ct-field">
+                        <label class="ct-label">Caution (MAD)</label>
+                        <input type="number" name="deposit" step="0.01" class="ct-input" value="{% if contract %}{{ contract.deposit }}{% else %}0{% endif %}">
+                    </div>
+                </div>
+                <div class="ct-grid-2">
+                    <div class="ct-field">
+                        <label class="ct-label">Km au départ</label>
+                        <input type="number" name="km_start" class="ct-input" value="{% if contract %}{{ contract.km_start }}{% else %}0{% endif %}">
+                    </div>
+                    <div class="ct-field">
+                        <label class="ct-label">Km au retour</label>
+                        <input type="number" name="km_end" class="ct-input" value="{% if contract %}{{ contract.km_end|default:'' }}{% endif %}" placeholder="À remplir au retour">
+                    </div>
+                </div>
+                <div class="ct-grid-2">
+                    <div class="ct-field">
+                        <label class="ct-label">Statut</label>
+                        <select name="status" class="ct-input">
+                            {% for code, label in statuses %}
+                            <option value="{{ code }}" {% if contract and contract.status == code %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="ct-field">
+                        <label class="ct-label">Durée / Montant total</label>
+                        <div class="calc-box" id="calculatedInfo">
+                            Sélectionnez les dates et le prix
+                        </div>
+                    </div>
+                </div>
+                <div class="ct-field">
+                    <label class="ct-label">Notes / Observations</label>
+                    <textarea name="notes" class="ct-input" rows="3" placeholder="Notes supplémentaires...">{% if contract %}{{ contract.notes }}{% endif %}</textarea>
                 </div>
             </div>
-            <div class="admin-form-group full-width">
-                <label>Notes / Observations</label>
-                <textarea name="notes" placeholder="Notes supplémentaires...">{% if contract %}{{ contract.notes }}{% endif %}</textarea>
+        </div>
+
+        <!-- Signatures -->
+        <div class="ct-card">
+            <div class="ct-card-header">
+                <div class="h-icon" style="background: #7c3aed;"><i data-lucide="pen-tool"></i></div>
+                Signatures
             </div>
-            <div class="admin-form-actions">
-                <a href="{% url 'core:admin_contracts' %}" class="admin-btn admin-btn-outline">Annuler</a>
-                <button type="submit" class="admin-btn admin-btn-primary">{% if contract %}Enregistrer{% else %}Créer le contrat{% endif %}</button>
+            <div class="ct-card-body">
+                <div class="sig-area">
+                    <!-- Signature Directeur -->
+                    <div class="sig-box">
+                        <div class="sig-title">Signature du Directeur</div>
+                        {% if contract and contract.director_signature %}
+                        <img src="{{ contract.director_signature.url }}" class="sig-preview" alt="Signature directeur">
+                        <div class="sig-actions" style="margin-top: 10px;">
+                            <span style="color: #16a34a; font-size: 0.85rem; font-weight: 600;">
+                                <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Signé
+                            </span>
+                        </div>
+                        {% else %}
+                        <div class="sig-canvas-wrap">
+                            <canvas id="directorCanvas" class="sig-canvas" width="300" height="120"></canvas>
+                        </div>
+                        <div class="sig-actions">
+                            <button type="button" class="sig-btn" onclick="clearCanvas('directorCanvas')">
+                                <i data-lucide="eraser" style="width:14px;height:14px;"></i> Effacer
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Signature Client -->
+                    <div class="sig-box">
+                        <div class="sig-title">Signature du Client</div>
+                        {% if contract and contract.client_signature %}
+                        <img src="{{ contract.client_signature.url }}" class="sig-preview" alt="Signature client">
+                        <div class="sig-actions" style="margin-top: 10px;">
+                            <span style="color: #16a34a; font-size: 0.85rem; font-weight: 600;">
+                                <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Signé le {{ contract.client_signed_at|date:"d/m/Y H:i" }}
+                            </span>
+                        </div>
+                        {% elif contract %}
+                        <div style="padding: 20px; color: #888;">
+                            <i data-lucide="clock" style="width: 28px; height: 28px; color: #ddd; margin-bottom: 8px;"></i>
+                            <div style="font-size: 0.88rem;">En attente de signature...</div>
+                        </div>
+                        <div class="share-link-box">
+                            <i data-lucide="link" style="width: 18px; color: #16a34a;"></i>
+                            <input type="text" class="share-link-input" id="shareLink" value="{{ request.scheme }}://{{ request.get_host }}/contrat/signer/{{ contract.signature_token }}/" readonly>
+                            <button type="button" class="copy-btn" onclick="copyLink()">
+                                <i data-lucide="copy" style="width:14px;height:14px;"></i> Copier
+                            </button>
+                        </div>
+                        <div style="font-size: 0.78rem; color: #888; margin-top: 8px;">
+                            Partagez ce lien avec le client pour qu'il signe le contrat.
+                        </div>
+                        {% else %}
+                        <div style="padding: 20px; color: #999; font-size: 0.88rem;">
+                            Le lien de signature sera disponible après la création du contrat.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
-    </form>
-</div>
 
+        <!-- Actions -->
+        <div style="display: flex; justify-content: flex-end; gap: 12px; padding-bottom: 20px;">
+            <a href="{% url 'core:admin_contracts' %}" class="admin-btn">Annuler</a>
+            <button type="submit" class="admin-btn admin-btn-primary" style="padding: 12px 28px;">
+                <i data-lucide="save"></i> {% if contract %}Enregistrer{% else %}Créer le contrat{% endif %}
+            </button>
+        </div>
+
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
 <script>
 // Auto-fill price when car is selected
 document.getElementById('carSelect').addEventListener('change', function() {
@@ -89,13 +294,11 @@ document.getElementById('carSelect').addEventListener('change', function() {
     calculateTotal();
 });
 
-// Auto-calculate total
 function calculateTotal() {
     const start = document.getElementById('startDate').value;
     const end = document.getElementById('endDate').value;
     const price = parseFloat(document.getElementById('pricePerDay').value) || 0;
     const info = document.getElementById('calculatedInfo');
-
     if (start && end && price > 0) {
         const d1 = new Date(start);
         const d2 = new Date(end);
@@ -104,10 +307,82 @@ function calculateTotal() {
         info.innerHTML = `<strong>${days} jour(s)</strong> × ${price.toFixed(2)} MAD = <strong style="color:#E53935;">${total.toFixed(2)} MAD</strong>`;
     }
 }
-
 document.getElementById('startDate').addEventListener('change', calculateTotal);
 document.getElementById('endDate').addEventListener('change', calculateTotal);
 document.getElementById('pricePerDay').addEventListener('input', calculateTotal);
 calculateTotal();
+
+// Signature Canvas
+function initCanvas(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDraw(e) {
+        e.preventDefault();
+        drawing = true;
+        const pos = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+    }
+
+    function draw(e) {
+        if (!drawing) return;
+        e.preventDefault();
+        const pos = getPos(e);
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000';
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+    }
+
+    function stopDraw() { drawing = false; }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+    canvas.addEventListener('touchstart', startDraw);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchend', stopDraw);
+}
+
+function clearCanvas(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+initCanvas('directorCanvas');
+
+// Save director signature before submit
+document.getElementById('contractForm').addEventListener('submit', function() {
+    const canvas = document.getElementById('directorCanvas');
+    if (canvas) {
+        document.getElementById('directorSignatureData').value = canvas.toDataURL('image/png');
+    }
+});
+
+// Copy share link
+function copyLink() {
+    const input = document.getElementById('shareLink');
+    if (!input) return;
+    input.select();
+    navigator.clipboard.writeText(input.value).then(function() {
+        const btn = input.nextElementSibling;
+        btn.textContent = '✓ Copié !';
+        setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" style="width:14px;height:14px;"></i> Copier'; lucide.createIcons(); }, 2000);
+    });
+}
 </script>
 {% endblock %}

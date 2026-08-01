@@ -11,6 +11,8 @@ from .models import (
 import csv
 import json
 import datetime
+import base64
+from django.core.files.base import ContentFile
 
 
 # ============================================
@@ -521,14 +523,26 @@ def admin_client_add(request):
     """Ajouter un client."""
     if request.method == 'POST':
         client = Client(
-            full_name=request.POST.get('full_name', ''),
+            first_name=request.POST.get('first_name', ''),
+            last_name=request.POST.get('last_name', ''),
+            full_name=f"{request.POST.get('last_name', '')} {request.POST.get('first_name', '')}",
+            gender=request.POST.get('gender', ''),
+            nationality=request.POST.get('nationality', 'Marocaine'),
             cin=request.POST.get('cin', ''),
             drivers_license=request.POST.get('drivers_license', ''),
             phone=request.POST.get('phone', ''),
             email=request.POST.get('email', ''),
             address=request.POST.get('address', ''),
             city=request.POST.get('city', ''),
+            country=request.POST.get('country', 'Maroc'),
+            passport_number=request.POST.get('passport_number', ''),
         )
+        # Date fields
+        for field in ['birth_date', 'cin_expiry', 'passport_expiry', 'license_delivered']:
+            val = request.POST.get(field)
+            if val:
+                setattr(client, field, val)
+
         if request.FILES.get('cin_front'):
             client.cin_front = request.FILES['cin_front']
         if request.FILES.get('cin_back'):
@@ -543,13 +557,27 @@ def admin_client_edit(request, client_id):
     """Modifier un client."""
     client = get_object_or_404(Client, id=client_id)
     if request.method == 'POST':
-        client.full_name = request.POST.get('full_name', client.full_name)
+        client.first_name = request.POST.get('first_name', client.first_name)
+        client.last_name = request.POST.get('last_name', client.last_name)
+        client.gender = request.POST.get('gender', client.gender)
+        client.nationality = request.POST.get('nationality', client.nationality)
         client.cin = request.POST.get('cin', client.cin)
         client.drivers_license = request.POST.get('drivers_license', client.drivers_license)
         client.phone = request.POST.get('phone', client.phone)
         client.email = request.POST.get('email', client.email)
         client.address = request.POST.get('address', client.address)
         client.city = request.POST.get('city', client.city)
+        client.country = request.POST.get('country', client.country)
+        client.passport_number = request.POST.get('passport_number', client.passport_number)
+
+        # Date fields
+        for field in ['birth_date', 'cin_expiry', 'passport_expiry', 'license_delivered']:
+            val = request.POST.get(field)
+            if val:
+                setattr(client, field, val)
+            elif not val:
+                setattr(client, field, None)
+
         if request.FILES.get('cin_front'):
             client.cin_front = request.FILES['cin_front']
         if request.FILES.get('cin_back'):
@@ -605,6 +633,15 @@ def admin_contract_add(request):
             status=request.POST.get('status', 'en_cours'),
             notes=request.POST.get('notes', ''),
         )
+        
+        # Save director signature if provided
+        sig_data = request.POST.get('director_signature_data')
+        if sig_data:
+            import uuid
+            format, imgstr = sig_data.split(';base64,')
+            ext = format.split('/')[-1]
+            contract.director_signature = ContentFile(base64.b64decode(imgstr), name=f'director_sig_{uuid.uuid4().hex[:8]}.{ext}')
+            
         contract.save()
         messages.success(request, f'Contrat {contract.contract_number} créé avec succès !')
         return redirect('core:admin_contracts')
@@ -631,6 +668,15 @@ def admin_contract_edit(request, contract_id):
         contract.km_end = request.POST.get('km_end') or None
         contract.status = request.POST.get('status', contract.status)
         contract.notes = request.POST.get('notes', contract.notes)
+        
+        # Save director signature if provided
+        sig_data = request.POST.get('director_signature_data')
+        if sig_data:
+            import uuid
+            format, imgstr = sig_data.split(';base64,')
+            ext = format.split('/')[-1]
+            contract.director_signature = ContentFile(base64.b64decode(imgstr), name=f'director_sig_{uuid.uuid4().hex[:8]}.{ext}')
+
         contract.save()
         messages.success(request, f'Contrat {contract.contract_number} modifié avec succès !')
         return redirect('core:admin_contracts')
@@ -653,12 +699,37 @@ def admin_contract_delete(request, contract_id):
     return redirect('core:admin_contracts')
 
 
+def contract_client_sign(request, token):
+    """Page publique pour que le client signe son contrat."""
+    contract = get_object_or_404(RentalContract, signature_token=token)
+    
+    context = {
+        'contract': contract,
+        'already_signed': bool(contract.client_signature),
+        'signed_success': False
+    }
+
+    if request.method == 'POST' and not contract.client_signature:
+        sig_data = request.POST.get('signature_data')
+        if sig_data:
+            import uuid
+            format, imgstr = sig_data.split(';base64,')
+            ext = format.split('/')[-1]
+            contract.client_signature = ContentFile(base64.b64decode(imgstr), name=f'client_sig_{uuid.uuid4().hex[:8]}.{ext}')
+            contract.client_signed_at = timezone.now()
+            contract.save()
+            context['signed_success'] = True
+            context['already_signed'] = True
+
+    return render(request, 'core/contract_sign.html', context)
+
+
 def admin_contract_pdf(request, contract_id):
     """Générer un PDF pour un contrat."""
     from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
     from reportlab.lib.units import cm
-    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.enums import TA_CENTER, TA_LEFT
     import io
@@ -779,33 +850,56 @@ def admin_contract_pdf(request, contract_id):
     elements.append(price_table)
 
     # Terms
-    elements.append(Spacer(1, 20))
-    elements.append(Paragraph("CONDITIONS GÉNÉRALES", heading_style))
-    terms = [
-        "Le locataire s'engage à restituer le véhicule dans l'état dans lequel il l'a reçu.",
-        "Tout dommage constaté au retour sera à la charge du locataire.",
-        "La caution sera restituée après vérification de l'état du véhicule.",
-        "Le carburant n'est pas inclus dans le prix de la location.",
-        "Le locataire doit respecter le code de la route marocain.",
-    ]
-    for i, term in enumerate(terms, 1):
-        elements.append(Paragraph(f"{i}. {term}", normal_style))
+    agency = AgencyInfo.objects.first()
+    if agency and agency.conditions_generales:
+        elements.append(Spacer(1, 20))
+        elements.append(Paragraph("CONDITIONS GÉNÉRALES", heading_style))
+        for line in agency.conditions_generales.split('\n'):
+            if line.strip():
+                elements.append(Paragraph(line.strip(), normal_style))
+    else:
+        elements.append(Spacer(1, 20))
+        elements.append(Paragraph("CONDITIONS GÉNÉRALES", heading_style))
+        terms = [
+            "Le locataire s'engage à restituer le véhicule dans l'état dans lequel il l'a reçu.",
+            "Tout dommage constaté au retour sera à la charge du locataire.",
+            "La caution sera restituée après vérification de l'état du véhicule.",
+            "Le carburant n'est pas inclus dans le prix de la location.",
+            "Le locataire doit respecter le code de la route marocain.",
+        ]
+        for i, term in enumerate(terms, 1):
+            elements.append(Paragraph(f"{i}. {term}", normal_style))
 
     # Signatures
     elements.append(Spacer(1, 40))
+    dir_sig = ''
+    if contract.director_signature:
+        import os
+        if os.path.exists(contract.director_signature.path):
+            dir_sig = Image(contract.director_signature.path, width=4*cm, height=1.5*cm)
+            
+    client_sig = ''
+    if contract.client_signature:
+        import os
+        if os.path.exists(contract.client_signature.path):
+            client_sig = Image(contract.client_signature.path, width=4*cm, height=1.5*cm)
+
     sig_data = [
         ['Signature du Loueur', '', 'Signature du Locataire'],
         ['SAOUD CAR', '', contract.client.full_name],
-        ['', '', ''],
-        ['', '', ''],
-        ['___________________', '', '___________________'],
+        [dir_sig, '', client_sig],
     ]
+    if not dir_sig or not client_sig:
+        sig_data.append(['___________________', '', '___________________'])
+
     sig_table = Table(sig_data, colWidths=[7 * cm, 4 * cm, 7 * cm])
     sig_table.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 9),
         ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ]))
     elements.append(sig_table)
 

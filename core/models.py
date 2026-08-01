@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 import datetime
+import uuid
 
 
 # ============================================
@@ -108,13 +109,35 @@ class Car(models.Model):
 #  MODÈLE CLIENT
 # ============================================
 class Client(models.Model):
+    GENDER_CHOICES = [
+        ('homme', 'Homme'),
+        ('femme', 'Femme'),
+    ]
+
+    # Informations personnelles
     full_name = models.CharField(max_length=200, verbose_name="Nom complet")
-    cin = models.CharField(max_length=20, unique=True, verbose_name="CIN")
-    drivers_license = models.CharField(max_length=50, blank=True, verbose_name="Permis de conduire")
+    first_name = models.CharField(max_length=100, blank=True, verbose_name="Prénom")
+    last_name = models.CharField(max_length=100, blank=True, verbose_name="Nom")
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, verbose_name="Genre")
+    birth_date = models.DateField(blank=True, null=True, verbose_name="Date de naissance")
+    nationality = models.CharField(max_length=100, blank=True, default="Marocaine", verbose_name="Nationalité")
+
+    # Pièces d'identité & Permis
+    cin = models.CharField(max_length=20, unique=True, verbose_name="N° CIN")
+    cin_expiry = models.DateField(blank=True, null=True, verbose_name="Valable jusqu'au (CIN)")
+    passport_number = models.CharField(max_length=50, blank=True, verbose_name="N° Passeport")
+    passport_expiry = models.DateField(blank=True, null=True, verbose_name="Valable jusqu'au (Passeport)")
+    drivers_license = models.CharField(max_length=50, blank=True, verbose_name="N° Permis")
+    license_delivered = models.DateField(blank=True, null=True, verbose_name="Délivré le")
+
+    # Coordonnées
     phone = models.CharField(max_length=20, verbose_name="Téléphone")
     email = models.EmailField(blank=True, verbose_name="Email")
     address = models.TextField(blank=True, verbose_name="Adresse")
     city = models.CharField(max_length=100, blank=True, verbose_name="Ville")
+    country = models.CharField(max_length=100, blank=True, default="Maroc", verbose_name="Pays")
+
+    # Pièces jointes
     cin_front = models.ImageField(upload_to='clients/cin/', blank=True, null=True, verbose_name="CIN Recto")
     cin_back = models.ImageField(upload_to='clients/cin/', blank=True, null=True, verbose_name="CIN Verso")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -126,6 +149,12 @@ class Client(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.cin})"
+
+    def save(self, *args, **kwargs):
+        # Auto-fill full_name from first_name + last_name if they are set
+        if self.first_name and self.last_name:
+            self.full_name = f"{self.last_name} {self.first_name}"
+        super().save(*args, **kwargs)
 
     @property
     def total_rentals(self):
@@ -159,6 +188,12 @@ class RentalContract(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='en_cours', verbose_name="Statut")
     notes = models.TextField(blank=True, verbose_name="Notes / Observations")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    # Signatures
+    director_signature = models.ImageField(upload_to='signatures/', blank=True, null=True, verbose_name="Signature directeur")
+    client_signature = models.ImageField(upload_to='signatures/', blank=True, null=True, verbose_name="Signature client")
+    signature_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, verbose_name="Token de signature")
+    client_signed_at = models.DateTimeField(blank=True, null=True, verbose_name="Date signature client")
 
     class Meta:
         verbose_name = "Contrat de location"

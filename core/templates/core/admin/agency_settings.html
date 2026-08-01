@@ -3,44 +3,217 @@
 
 {% block extra_head %}
 <style>
+.settings-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.settings-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.settings-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 28px;
+    background: linear-gradient(135deg, #f8f9fa, #eef1f5);
+    border-bottom: 1px solid var(--admin-border);
+    font-weight: 700;
+    font-size: 1rem;
+}
+.settings-card-header .header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+.settings-card-header .header-icon i { width: 18px; height: 18px; }
+.settings-card-body {
+    padding: 28px;
+}
+.s-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.s-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+.s-field { margin-bottom: 18px; }
+.s-field:last-child { margin-bottom: 0; }
+.s-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--admin-text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.s-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-family: var(--font-body);
+    color: var(--admin-text);
+    background: var(--admin-surface);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.s-input:focus {
+    outline: none;
+    border-color: var(--admin-blue);
+    box-shadow: 0 0 0 3px rgba(41, 121, 255, 0.1);
+}
+
+/* Visual Identity */
+.identity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+.identity-box {
+    text-align: center;
+    padding: 30px 20px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    background: #fafbfc;
+}
+.identity-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #888;
+    margin-bottom: 20px;
+}
+.logo-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 2px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    overflow: hidden;
+    background: white;
+    position: relative;
+}
+.logo-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.logo-circle .placeholder { color: #bbb; font-size: 0.9rem; }
+.stamp-box {
+    width: 220px;
+    height: 140px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    overflow: hidden;
+    background: white;
+    position: relative;
+}
+.stamp-box img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+.upload-btn {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s;
+    z-index: 2;
+}
+.upload-btn:hover { transform: scale(1.1); }
+.upload-btn i { width: 20px; height: 20px; }
+.upload-btn input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Toggle Switch */
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 44px;
-    height: 24px;
+    width: 46px;
+    height: 26px;
 }
-.toggle-switch input { 
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
 .toggle-slider {
     position: absolute;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 24px;
+    inset: 0;
+    background-color: #d1d5db;
+    transition: .3s;
+    border-radius: 26px;
 }
 .toggle-slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
+    height: 20px;
+    width: 20px;
     left: 3px;
     bottom: 3px;
     background-color: white;
-    transition: .4s;
+    transition: .3s;
     border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 input:checked + .toggle-slider {
     background-color: #0095ff;
 }
 input:checked + .toggle-slider:before {
     transform: translateX(20px);
+}
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+}
+.toggle-row + .toggle-row {
+    border-top: 1px solid #f0f0f0;
+}
+.toggle-label { font-weight: 500; font-size: 0.92rem; }
+
+/* Conditions */
+.conditions-textarea {
+    width: 100%;
+    padding: 18px;
+    border-radius: 10px;
+    border: 1px solid var(--admin-border);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    line-height: 1.7;
+    resize: vertical;
+    color: var(--admin-text);
+    transition: border-color 0.2s;
+}
+.conditions-textarea:focus {
+    outline: none;
+    border-color: var(--admin-blue);
+    box-shadow: 0 0 0 3px rgba(41, 121, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .s-grid-2, .s-grid-3, .identity-grid { grid-template-columns: 1fr; }
 }
 </style>
 {% endblock %}
@@ -53,153 +226,188 @@ input:checked + .toggle-slider:before {
     </div>
 </div>
 
-<div class="admin-card">
-    <form method="POST" class="admin-form" enctype="multipart/form-data">
-        {% csrf_token %}
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="form-group">
-                <label>Raison Sociale</label>
-                <input type="text" name="name" value="{{ agency.name }}" required>
-            </div>
-            <div class="form-group">
-                <label>Email de contact</label>
-                <input type="email" name="email" value="{{ agency.email }}" required>
-            </div>
-        </div>
+<form method="POST" class="admin-form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="settings-layout">
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="form-group">
-                <label>Téléphone Mobile</label>
-                <input type="text" name="phone_mobile" value="{{ agency.phone_mobile }}" required>
-            </div>
-            <div class="form-group">
-                <label>Téléphone Fixe</label>
-                <input type="text" name="phone_fixed" value="{{ agency.phone_fixed }}" required>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Adresse complète</label>
-            <input type="text" name="address" value="{{ agency.address }}" required>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-            <div class="form-group">
-                <label>Ville</label>
-                <input type="text" name="city" value="{{ agency.city }}" required>
-            </div>
-            <div class="form-group">
-                <label>Code postal</label>
-                <input type="text" name="zip_code" value="{{ agency.zip_code }}" required>
-            </div>
-            <div class="form-group">
-                <label>Pays</label>
-                <input type="text" name="country" value="{{ agency.country }}" required>
-            </div>
-        </div>
-
-        <h3 style="margin: 30px 0 15px 0;">Informations Légales</h3>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="form-group">
-                <label>ICE</label>
-                <input type="text" name="ice" value="{{ agency.ice }}" required>
-            </div>
-            <div class="form-group">
-                <label>Patente</label>
-                <input type="text" name="patente" value="{{ agency.patente }}" required>
-            </div>
-            <div class="form-group">
-                <label>RC</label>
-                <input type="text" name="rc" value="{{ agency.rc }}" required>
-            </div>
-            <div class="form-group">
-                <label>Identifiant Fiscal (IF)</label>
-                <input type="text" name="if_tax" value="{{ agency.if_tax }}" required>
-            </div>
-            <div class="form-group">
-                <label>CNSS</label>
-                <input type="text" name="cnss" value="{{ agency.cnss }}" required>
-            </div>
-            <div class="form-group">
-                <label>TVA (%)</label>
-                <input type="number" name="tva" value="{{ agency.tva }}" required>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Site Web</label>
-            <input type="text" name="website" value="{{ agency.website }}">
-        </div>
-
-        <h3 style="margin: 30px 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-            <i data-lucide="image" style="width: 20px; vertical-align: middle; margin-right: 8px;"></i> Identité Visuelle
-        </h3>
-
-        <div style="display: flex; gap: 40px; flex-wrap: wrap; margin-bottom: 30px;">
-            <!-- Logo -->
-            <div style="flex: 1; text-align: center; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
-                <h4 style="color: #666; margin-bottom: 20px; font-weight: 600; letter-spacing: 1px;">LOGO</h4>
-                <div style="position: relative; display: inline-block;">
-                    {% if agency.logo %}
-                        <img src="{{ agency.logo.url }}" alt="Logo" style="width: 150px; height: 150px; object-fit: contain; border-radius: 50%; border: 1px solid #e0e0e0; background: #fff;">
-                    {% else %}
-                        <div style="width: 150px; height: 150px; border-radius: 50%; border: 1px solid #e0e0e0; background: #f9f9f9; display: flex; align-items: center; justify-content: center; color: #999;">Pas de logo</div>
-                    {% endif %}
-                    <label for="id_logo" style="position: absolute; bottom: 0; right: 0; background: #0095ff; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                        <i data-lucide="camera" style="width: 20px;"></i>
-                    </label>
-                    <input type="file" name="logo" id="id_logo" style="display: none;" accept="image/*">
+        <!-- Informations Générales -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div class="header-icon" style="background: #2563eb;">
+                    <i data-lucide="building-2"></i>
                 </div>
+                Informations Générales
             </div>
-
-            <!-- Cachet -->
-            <div style="flex: 1; text-align: center; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
-                <h4 style="color: #666; margin-bottom: 20px; font-weight: 600; letter-spacing: 1px;">CACHET</h4>
-                <div style="position: relative; display: inline-block;">
-                    {% if agency.stamp %}
-                        <img src="{{ agency.stamp.url }}" alt="Cachet" style="width: 200px; height: 120px; object-fit: contain; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff;">
-                    {% else %}
-                        <div style="width: 200px; height: 120px; border: 1px solid #e0e0e0; border-radius: 8px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; color: #999;">Pas de cachet</div>
-                    {% endif %}
-                    <label for="id_stamp" style="position: absolute; bottom: -10px; right: -10px; background: #fff; color: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #ddd;">
-                        <i data-lucide="upload" style="width: 20px;"></i>
-                    </label>
-                    <input type="file" name="stamp" id="id_stamp" style="display: none;" accept="image/*">
-                </div>
-                
-                <div style="margin-top: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: left;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                        <span style="font-weight: 500;">Afficher Sur le Contrat</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" name="show_stamp_on_contract" {% if agency.show_stamp_on_contract %}checked{% endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
+            <div class="settings-card-body">
+                <div class="s-grid-2">
+                    <div class="s-field">
+                        <label class="s-label">Raison Sociale</label>
+                        <input type="text" name="name" value="{{ agency.name }}" class="s-input" required>
                     </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span style="font-weight: 500;">Afficher Sur la Facture</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" name="show_stamp_on_invoice" {% if agency.show_stamp_on_invoice %}checked{% endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
+                    <div class="s-field">
+                        <label class="s-label">Email de contact</label>
+                        <input type="email" name="email" value="{{ agency.email }}" class="s-input" required>
+                    </div>
+                </div>
+                <div class="s-grid-2">
+                    <div class="s-field">
+                        <label class="s-label">Téléphone Mobile</label>
+                        <input type="text" name="phone_mobile" value="{{ agency.phone_mobile }}" class="s-input" required>
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">Téléphone Fixe</label>
+                        <input type="text" name="phone_fixed" value="{{ agency.phone_fixed }}" class="s-input" required>
+                    </div>
+                </div>
+                <div class="s-field">
+                    <label class="s-label">Adresse complète</label>
+                    <input type="text" name="address" value="{{ agency.address }}" class="s-input" required>
+                </div>
+                <div class="s-grid-3">
+                    <div class="s-field">
+                        <label class="s-label">Ville</label>
+                        <input type="text" name="city" value="{{ agency.city }}" class="s-input" required>
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">Code postal</label>
+                        <input type="text" name="zip_code" value="{{ agency.zip_code }}" class="s-input" required>
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">Pays</label>
+                        <input type="text" name="country" value="{{ agency.country }}" class="s-input" required>
+                    </div>
+                </div>
+                <div class="s-field">
+                    <label class="s-label">Site Web</label>
+                    <input type="text" name="website" value="{{ agency.website }}" class="s-input">
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations Légales -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div class="header-icon" style="background: #7c3aed;">
+                    <i data-lucide="scale"></i>
+                </div>
+                Informations Légales
+            </div>
+            <div class="settings-card-body">
+                <div class="s-grid-2">
+                    <div class="s-field">
+                        <label class="s-label">ICE</label>
+                        <input type="text" name="ice" value="{{ agency.ice }}" class="s-input" required>
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">Patente</label>
+                        <input type="text" name="patente" value="{{ agency.patente }}" class="s-input" required>
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">RC</label>
+                        <input type="text" name="rc" value="{{ agency.rc }}" class="s-input" required>
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">Identifiant Fiscal (IF)</label>
+                        <input type="text" name="if_tax" value="{{ agency.if_tax }}" class="s-input" required>
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">CNSS</label>
+                        <input type="text" name="cnss" value="{{ agency.cnss }}" class="s-input" required>
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">TVA (%)</label>
+                        <input type="number" name="tva" value="{{ agency.tva }}" class="s-input" required>
                     </div>
                 </div>
             </div>
         </div>
 
-        <h3 style="margin: 30px 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-            <i data-lucide="file-text" style="width: 20px; vertical-align: middle; margin-right: 8px;"></i> Conditions Générales de Location
-        </h3>
-        <div class="form-group">
-            <textarea name="conditions_generales" rows="15" style="width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0; font-family: inherit; font-size: 14px; line-height: 1.6; resize: vertical;">{{ agency.conditions_generales }}</textarea>
+        <!-- Identité Visuelle -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div class="header-icon" style="background: #0891b2;">
+                    <i data-lucide="image"></i>
+                </div>
+                Identité Visuelle
+            </div>
+            <div class="settings-card-body">
+                <div class="identity-grid">
+                    <!-- Logo -->
+                    <div class="identity-box">
+                        <div class="identity-label">LOGO</div>
+                        <div style="position: relative; display: inline-block;">
+                            <div class="logo-circle">
+                                {% if agency.logo %}
+                                    <img src="{{ agency.logo.url }}" alt="Logo">
+                                {% else %}
+                                    <span class="placeholder">Pas de logo</span>
+                                {% endif %}
+                            </div>
+                            <label class="upload-btn" style="background: #0095ff; color: white; box-shadow: 0 2px 8px rgba(0,149,255,0.3);">
+                                <i data-lucide="camera"></i>
+                                <input type="file" name="logo" accept="image/*">
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Cachet -->
+                    <div class="identity-box">
+                        <div class="identity-label">CACHET</div>
+                        <div style="position: relative; display: inline-block;">
+                            <div class="stamp-box">
+                                {% if agency.stamp %}
+                                    <img src="{{ agency.stamp.url }}" alt="Cachet">
+                                {% else %}
+                                    <span class="placeholder" style="color: #bbb;">Pas de cachet</span>
+                                {% endif %}
+                            </div>
+                            <label class="upload-btn" style="background: white; color: #333; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                                <i data-lucide="upload"></i>
+                                <input type="file" name="stamp" accept="image/*">
+                            </label>
+                        </div>
+
+                        <div style="margin-top: 28px; text-align: left; padding: 0 10px;">
+                            <div class="toggle-row">
+                                <span class="toggle-label">Afficher Sur le Contrat</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="show_stamp_on_contract" {% if agency.show_stamp_on_contract %}checked{% endif %}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-row">
+                                <span class="toggle-label">Afficher Sur la Facture</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="show_stamp_on_invoice" {% if agency.show_stamp_on_invoice %}checked{% endif %}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="form-actions" style="margin-top: 30px;">
-            <button type="submit" class="admin-btn admin-btn-primary">
+        <!-- Conditions Générales -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div class="header-icon" style="background: #ea580c;">
+                    <i data-lucide="file-text"></i>
+                </div>
+                Conditions Générales de Location
+            </div>
+            <div class="settings-card-body">
+                <textarea name="conditions_generales" rows="18" class="conditions-textarea">{{ agency.conditions_generales }}</textarea>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div style="display: flex; justify-content: flex-end; padding-bottom: 20px;">
+            <button type="submit" class="admin-btn admin-btn-primary" style="padding: 12px 32px; font-size: 0.95rem;">
                 <i data-lucide="save"></i> Enregistrer les paramètres
             </button>
         </div>
-    </form>
-</div>
+
+    </div>
+</form>
 {% endblock %}
