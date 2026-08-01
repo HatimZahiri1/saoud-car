@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.db.models import Sum, Count, Q, Avg
 from .models import (
@@ -1404,8 +1404,6 @@ def admin_reservation_delete(request, reservation_id):
     messages.success(request, "Réservation supprimée.")
     return redirect('core:admin_reservations')
 
-@login_required
-@user_passes_test(is_admin)
 def admin_contract_signature_status(request, contract_id):
     contract = get_object_or_404(RentalContract, id=contract_id)
     if contract.client_signature:
