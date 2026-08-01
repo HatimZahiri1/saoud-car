@@ -1,0 +1,62 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}Vidanges / Entretiens{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div class="admin-header-title">
+        <h1>Vidanges & Entretiens</h1>
+        <p>Suivi de l'entretien de la flotte.</p>
+    </div>
+    <a href="{% url 'core:admin_maintenance_add' %}" class="admin-btn admin-btn-primary">
+        <i data-lucide="plus"></i> Nouvelle vidange
+    </a>
+</div>
+
+<div class="admin-card">
+    <div class="table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Voiture</th>
+                    <th>Date</th>
+                    <th>Km Actuel</th>
+                    <th>Prochaine Vidange (Km)</th>
+                    <th>Coût (MAD)</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in maintenances %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">{{ m.car.get_brand_display }} {{ m.car.name }}</div>
+                        <div style="font-size: 0.85rem; color: #666;">{{ m.car.license_plate }}</div>
+                    </td>
+                    <td>{{ m.date|date:"d/m/Y" }}</td>
+                    <td>{{ m.current_mileage }}</td>
+                    <td>
+                        {{ m.next_mileage }}
+                        {% if m.car.mileage and m.car.mileage >= m.next_mileage %}
+                            <span class="badge badge-error" style="margin-left: 5px;">À faire</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ m.cost }}</td>
+                    <td style="text-align: right;">
+                        <a href="{% url 'core:admin_maintenance_edit' m.id %}" class="action-btn" title="Modifier">
+                            <i data-lucide="edit-2"></i>
+                        </a>
+                        <a href="{% url 'core:admin_maintenance_delete' m.id %}" class="action-btn text-danger" title="Supprimer" onclick="return confirm('Confirmer la suppression ?');">
+                            <i data-lucide="trash-2"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: #777;">Aucune vidange enregistrée.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

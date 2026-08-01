@@ -21,3 +21,12 @@ class ContactMessageAdmin(admin.ModelAdmin):
     search_fields = ('name', 'email', 'subject')
     list_editable = ('is_read',)
     readonly_fields = ('created_at',)
+
+from .models import Brand, Client, RentalContract, AgencyInfo, Maintenance, Reservation
+
+admin.site.register(Brand)
+admin.site.register(Client)
+admin.site.register(RentalContract)
+admin.site.register(AgencyInfo)
+admin.site.register(Maintenance)
+admin.site.register(Reservation)

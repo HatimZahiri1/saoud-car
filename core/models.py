@@ -339,3 +339,86 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.name} — {self.subject}"
+
+
+# ============================================
+#  MODÈLE PARAMÈTRES AGENCE
+# ============================================
+class AgencyInfo(models.Model):
+    name = models.CharField(max_length=100, default="SAOUD CAR", verbose_name="Raison Sociale")
+    email = models.EmailField(default="saoud88000@gmail.com", verbose_name="Email")
+    phone_mobile = models.CharField(max_length=20, default="+212661395495", verbose_name="Téléphone mobile")
+    phone_fixed = models.CharField(max_length=20, default="+212523290058", verbose_name="Téléphone fixe")
+    address = models.TextField(default="Citee Lalla Meriem Bloc B N 185", verbose_name="Adresse")
+    city = models.CharField(max_length=50, default="BENSLIMANE", verbose_name="Ville")
+    zip_code = models.CharField(max_length=20, default="13000", verbose_name="Code postal")
+    country = models.CharField(max_length=50, default="Maroc", verbose_name="Pays")
+    website = models.CharField(max_length=100, blank=True, verbose_name="Site Web")
+    
+    # Infos Légales
+    ice = models.CharField(max_length=50, default="000058659000023", verbose_name="ICE")
+    patente = models.CharField(max_length=50, default="39715439", verbose_name="Patente")
+    rc = models.CharField(max_length=50, default="2713", verbose_name="RC")
+    if_tax = models.CharField(max_length=50, default="40 39 14 74", verbose_name="IF")
+    cnss = models.CharField(max_length=50, default="8744080", verbose_name="CNSS")
+    tva = models.PositiveIntegerField(default=20, verbose_name="TVA (%)")
+
+    class Meta:
+        verbose_name = "Informations de l'agence"
+        verbose_name_plural = "Informations de l'agence"
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_solo(cls):
+        obj, created = cls.objects.get_or_create(id=1)
+        return obj
+
+
+# ============================================
+#  MODÈLE VIDANGE (ENTRETIEN)
+# ============================================
+class Maintenance(models.Model):
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='maintenances', verbose_name="Voiture")
+    date = models.DateField(default=timezone.now, verbose_name="Date")
+    current_mileage = models.PositiveIntegerField(verbose_name="Kilométrage actuel")
+    next_mileage = models.PositiveIntegerField(verbose_name="Prochaine vidange (Km)")
+    cost = models.DecimalField(max_digits=8, decimal_places=2, default=0, verbose_name="Coût (MAD)")
+    notes = models.TextField(blank=True, verbose_name="Notes / Observations")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Vidange / Entretien"
+        verbose_name_plural = "Vidanges / Entretiens"
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"Vidange - {self.car} ({self.date})"
+
+
+# ============================================
+#  MODÈLE RÉSERVATION
+# ============================================
+class Reservation(models.Model):
+    STATUS_CHOICES = [
+        ('en_attente', 'En attente'),
+        ('confirmee', 'Confirmée'),
+        ('annulee', 'Annulée'),
+    ]
+
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='reservations', verbose_name="Client")
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='reservations', verbose_name="Voiture")
+    start_date = models.DateField(verbose_name="Date de début")
+    end_date = models.DateField(verbose_name="Date de fin")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='en_attente', verbose_name="Statut")
+    notes = models.TextField(blank=True, verbose_name="Notes / Observations")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Réservation"
+        verbose_name_plural = "Réservations"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Réservation {self.id} — {self.client.full_name} ({self.car})"

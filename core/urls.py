@@ -63,4 +63,22 @@ urlpatterns = [
     path('admin/messages/', views.admin_messages, name='admin_messages'),
     path('admin/messages/<int:msg_id>/lu/', views.admin_message_read, name='admin_message_read'),
     path('admin/messages/<int:msg_id>/supprimer/', views.admin_message_delete, name='admin_message_delete'),
+
+    # Tarifs
+    path('admin/tarifs/', views.admin_tariffs, name='admin_tariffs'),
+
+    # Paramètres Agence
+    path('admin/parametres/', views.admin_agency_settings, name='admin_agency_settings'),
+
+    # Vidanges (Entretien)
+    path('admin/vidanges/', views.admin_maintenances, name='admin_maintenances'),
+    path('admin/vidanges/ajouter/', views.admin_maintenance_add, name='admin_maintenance_add'),
+    path('admin/vidanges/<int:maintenance_id>/modifier/', views.admin_maintenance_edit, name='admin_maintenance_edit'),
+    path('admin/vidanges/<int:maintenance_id>/supprimer/', views.admin_maintenance_delete, name='admin_maintenance_delete'),
+
+    # Réservations
+    path('admin/reservations/', views.admin_reservations, name='admin_reservations'),
+    path('admin/reservations/ajouter/', views.admin_reservation_add, name='admin_reservation_add'),
+    path('admin/reservations/<int:reservation_id>/modifier/', views.admin_reservation_edit, name='admin_reservation_edit'),
+    path('admin/reservations/<int:reservation_id>/supprimer/', views.admin_reservation_delete, name='admin_reservation_delete'),
 ]

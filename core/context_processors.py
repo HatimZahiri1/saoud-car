@@ -41,4 +41,12 @@ def _get_active_page(path):
         return 'reviews'
     elif '/admin/messages' in path:
         return 'messages'
+    elif '/admin/tarifs' in path:
+        return 'tariffs'
+    elif '/admin/parametres' in path:
+        return 'agency_settings'
+    elif '/admin/vidanges' in path:
+        return 'maintenances'
+    elif '/admin/reservations' in path:
+        return 'reservations'
     return 'dashboard'

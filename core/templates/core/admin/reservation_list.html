@@ -1,0 +1,70 @@
+{% extends 'core/admin/base_admin.html' %}
+{% block title %}Réservations{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div class="admin-header-title">
+        <h1>Réservations</h1>
+        <p>Gérez les réservations de véhicules.</p>
+    </div>
+    <a href="{% url 'core:admin_reservation_add' %}" class="admin-btn admin-btn-primary">
+        <i data-lucide="plus"></i> Nouvelle réservation
+    </a>
+</div>
+
+<div class="admin-card">
+    <div class="table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Voiture</th>
+                    <th>Du</th>
+                    <th>Au</th>
+                    <th>Statut</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reservations %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">{{ r.client.full_name }}</div>
+                        <div style="font-size: 0.85rem; color: #666;">{{ r.client.phone }}</div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600;">{{ r.car.get_brand_display }} {{ r.car.name }}</div>
+                        <div style="font-size: 0.85rem; color: #666;">{{ r.car.license_plate }}</div>
+                    </td>
+                    <td>{{ r.start_date|date:"d/m/Y" }}</td>
+                    <td>{{ r.end_date|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if r.status == 'en_attente' %}
+                            <span class="badge badge-warning">En attente</span>
+                        {% elif r.status == 'confirmee' %}
+                            <span class="badge badge-success" style="background-color: #e6f4ea; color: #137333;">Confirmée</span>
+                        {% elif r.status == 'annulee' %}
+                            <span class="badge badge-error">Annulée</span>
+                        {% else %}
+                            {{ r.get_status_display }}
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="{% url 'core:admin_reservation_edit' r.id %}" class="action-btn" title="Modifier">
+                            <i data-lucide="edit-2"></i>
+                        </a>
+                        <a href="{% url 'core:admin_reservation_delete' r.id %}" class="action-btn text-danger" title="Supprimer" onclick="return confirm('Confirmer la suppression ?');">
+                            <i data-lucide="trash-2"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: #777;">Aucune réservation.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

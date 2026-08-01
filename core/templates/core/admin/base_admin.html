@@ -60,6 +60,10 @@
             <i data-lucide="tag"></i>
             <span>Marques</span>
         </a>
+        <a href="{% url 'core:admin_tariffs' %}" class="sidebar-nav-item {% if active_page == 'tariffs' %}active{% endif %}">
+            <i data-lucide="tags"></i>
+            <span>Catégories & Tarifs</span>
+        </a>
         <a href="{% url 'core:admin_inspections' %}" class="sidebar-nav-item {% if active_page == 'inspections' %}active{% endif %}">
             <i data-lucide="wrench"></i>
             <span>Visites techniques</span>
@@ -69,11 +73,19 @@
             <span>Assurances</span>
             {% if alerts_count %}<span class="sidebar-nav-badge">{{ alerts_count }}</span>{% endif %}
         </a>
+        <a href="{% url 'core:admin_maintenances' %}" class="sidebar-nav-item {% if active_page == 'maintenances' %}active{% endif %}">
+            <i data-lucide="droplet"></i>
+            <span>Vidanges</span>
+        </a>
 
         <div class="sidebar-nav-label" style="margin-top: 20px;">Location</div>
         <a href="{% url 'core:admin_clients' %}" class="sidebar-nav-item {% if active_page == 'clients' %}active{% endif %}">
             <i data-lucide="users"></i>
             <span>Clients</span>
+        </a>
+        <a href="{% url 'core:admin_reservations' %}" class="sidebar-nav-item {% if active_page == 'reservations' %}active{% endif %}">
+            <i data-lucide="calendar"></i>
+            <span>Réservations</span>
         </a>
         <a href="{% url 'core:admin_contracts' %}" class="sidebar-nav-item {% if active_page == 'contracts' %}active{% endif %}">
             <i data-lucide="file-text"></i>
@@ -97,6 +109,12 @@
         <a href="{% url 'core:home' %}" class="sidebar-nav-item" target="_blank">
             <i data-lucide="external-link"></i>
             <span>Voir le site</span>
+        </a>
+
+        <div class="sidebar-nav-label" style="margin-top: 20px;">Configuration</div>
+        <a href="{% url 'core:admin_agency_settings' %}" class="sidebar-nav-item {% if active_page == 'agency_settings' %}active{% endif %}">
+            <i data-lucide="settings"></i>
+            <span>Infos Agence</span>
         </a>
     </nav>
 

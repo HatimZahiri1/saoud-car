@@ -5,7 +5,8 @@ from django.utils import timezone
 from django.db.models import Sum, Count, Q, Avg
 from .models import (
     Car, ContactMessage, Review, Brand, Client,
-    RentalContract, TechnicalInspection, Insurance
+    RentalContract, TechnicalInspection, Insurance,
+    AgencyInfo, Maintenance, Reservation
 )
 import csv
 import json
@@ -1135,3 +1136,165 @@ def admin_message_delete(request, msg_id):
     msg.delete()
     messages.success(request, 'Message supprimé.')
     return redirect('core:admin_messages')
+
+
+# ============================================
+#  TARIFS
+# ============================================
+
+def admin_tariffs(request):
+    """Page affichant les tarifs par catégorie."""
+    categories = Car.CATEGORY_CHOICES
+    cars_by_category = {}
+    for cat_id, cat_name in categories:
+        cars_by_category[cat_name] = Car.objects.filter(category=cat_id)
+        
+    if request.method == 'POST':
+        car_id = request.POST.get('car_id')
+        new_price = request.POST.get('price_per_day')
+        if car_id and new_price:
+            car = get_object_or_404(Car, id=car_id)
+            car.price_per_day = new_price
+            car.save()
+            messages.success(request, f"Tarif mis à jour pour {car.name}.")
+        return redirect('core:admin_tariffs')
+
+    context = {'cars_by_category': cars_by_category}
+    return render(request, 'core/admin/tariffs_list.html', context)
+
+
+# ============================================
+#  PARAMÈTRES AGENCE
+# ============================================
+
+def admin_agency_settings(request):
+    agency = AgencyInfo.get_solo()
+    
+    if request.method == 'POST':
+        agency.name = request.POST.get('name', agency.name)
+        agency.email = request.POST.get('email', agency.email)
+        agency.phone_mobile = request.POST.get('phone_mobile', agency.phone_mobile)
+        agency.phone_fixed = request.POST.get('phone_fixed', agency.phone_fixed)
+        agency.address = request.POST.get('address', agency.address)
+        agency.city = request.POST.get('city', agency.city)
+        agency.zip_code = request.POST.get('zip_code', agency.zip_code)
+        agency.country = request.POST.get('country', agency.country)
+        agency.website = request.POST.get('website', agency.website)
+        agency.ice = request.POST.get('ice', agency.ice)
+        agency.patente = request.POST.get('patente', agency.patente)
+        agency.rc = request.POST.get('rc', agency.rc)
+        agency.if_tax = request.POST.get('if_tax', agency.if_tax)
+        agency.cnss = request.POST.get('cnss', agency.cnss)
+        agency.tva = request.POST.get('tva', agency.tva)
+        agency.save()
+        messages.success(request, "Paramètres de l'agence mis à jour.")
+        return redirect('core:admin_agency_settings')
+        
+    return render(request, 'core/admin/agency_settings.html', {'agency': agency})
+
+
+# ============================================
+#  VIDANGES / ENTRETIEN
+# ============================================
+
+def admin_maintenances(request):
+    maintenances = Maintenance.objects.all().select_related('car')
+    return render(request, 'core/admin/maintenance_list.html', {'maintenances': maintenances})
+
+def admin_maintenance_add(request):
+    if request.method == 'POST':
+        car_id = request.POST.get('car')
+        car = get_object_or_404(Car, id=car_id)
+        m = Maintenance(
+            car=car,
+            date=request.POST.get('date'),
+            current_mileage=request.POST.get('current_mileage'),
+            next_mileage=request.POST.get('next_mileage'),
+            cost=request.POST.get('cost') or 0,
+            notes=request.POST.get('notes', '')
+        )
+        m.save()
+        
+        # Update car mileage
+        car.mileage = m.current_mileage
+        car.save()
+        
+        messages.success(request, "Vidange enregistrée.")
+        return redirect('core:admin_maintenances')
+    
+    cars = Car.objects.all()
+    return render(request, 'core/admin/maintenance_form.html', {'cars': cars})
+
+def admin_maintenance_edit(request, maintenance_id):
+    m = get_object_or_404(Maintenance, id=maintenance_id)
+    if request.method == 'POST':
+        m.car_id = request.POST.get('car')
+        m.date = request.POST.get('date')
+        m.current_mileage = request.POST.get('current_mileage')
+        m.next_mileage = request.POST.get('next_mileage')
+        m.cost = request.POST.get('cost') or 0
+        m.notes = request.POST.get('notes', '')
+        m.save()
+        messages.success(request, "Vidange modifiée.")
+        return redirect('core:admin_maintenances')
+    
+    cars = Car.objects.all()
+    return render(request, 'core/admin/maintenance_form.html', {'maintenance': m, 'cars': cars})
+
+def admin_maintenance_delete(request, maintenance_id):
+    m = get_object_or_404(Maintenance, id=maintenance_id)
+    m.delete()
+    messages.success(request, "Vidange supprimée.")
+    return redirect('core:admin_maintenances')
+
+
+# ============================================
+#  RÉSERVATIONS
+# ============================================
+
+def admin_reservations(request):
+    reservations = Reservation.objects.all().select_related('client', 'car')
+    return render(request, 'core/admin/reservation_list.html', {'reservations': reservations})
+
+def admin_reservation_add(request):
+    if request.method == 'POST':
+        client_id = request.POST.get('client')
+        car_id = request.POST.get('car')
+        r = Reservation(
+            client_id=client_id,
+            car_id=car_id,
+            start_date=request.POST.get('start_date'),
+            end_date=request.POST.get('end_date'),
+            status=request.POST.get('status', 'en_attente'),
+            notes=request.POST.get('notes', '')
+        )
+        r.save()
+        messages.success(request, "Réservation créée.")
+        return redirect('core:admin_reservations')
+        
+    clients = Client.objects.all()
+    cars = Car.objects.all()
+    return render(request, 'core/admin/reservation_form.html', {'clients': clients, 'cars': cars})
+
+def admin_reservation_edit(request, reservation_id):
+    r = get_object_or_404(Reservation, id=reservation_id)
+    if request.method == 'POST':
+        r.client_id = request.POST.get('client')
+        r.car_id = request.POST.get('car')
+        r.start_date = request.POST.get('start_date')
+        r.end_date = request.POST.get('end_date')
+        r.status = request.POST.get('status')
+        r.notes = request.POST.get('notes', '')
+        r.save()
+        messages.success(request, "Réservation modifiée.")
+        return redirect('core:admin_reservations')
+        
+    clients = Client.objects.all()
+    cars = Car.objects.all()
+    return render(request, 'core/admin/reservation_form.html', {'reservation': r, 'clients': clients, 'cars': cars})
+
+def admin_reservation_delete(request, reservation_id):
+    r = get_object_or_404(Reservation, id=reservation_id)
+    r.delete()
+    messages.success(request, "Réservation supprimée.")
+    return redirect('core:admin_reservations')
