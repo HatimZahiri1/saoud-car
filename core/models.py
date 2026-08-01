@@ -225,7 +225,8 @@ class RentalContract(models.Model):
         if not self.contract_number:
             self.contract_number = self._generate_contract_number()
         if self.start_date and self.end_date and self.price_per_day:
-            self.total_amount = self.duration_days * self.price_per_day
+            from decimal import Decimal
+            self.total_amount = self.duration_days * Decimal(str(self.price_per_day))
         super().save(*args, **kwargs)
 
     @staticmethod
