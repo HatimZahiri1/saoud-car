@@ -42,8 +42,10 @@ urlpatterns = [
     path('admin/contrats/export/csv/', views.admin_contracts_export_csv, name='admin_contracts_export_csv'),
     path('admin/contrats/export/excel/', views.admin_contracts_export_excel, name='admin_contracts_export_excel'),
     
-    # Signature Client (Publique)
+    # Signature Client (Publique & API)
     path('contrat/signer/<uuid:token>/', views.contract_client_sign, name='contract_client_sign'),
+    path('admin/contrats/<int:contract_id>/statut-signature/', views.admin_contract_signature_status, name='admin_contract_signature_status'),
+    
     # Visites techniques
     path('admin/visites/', views.admin_inspections, name='admin_inspections'),
     path('admin/visites/ajouter/', views.admin_inspection_add, name='admin_inspection_add'),

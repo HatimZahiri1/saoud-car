@@ -126,7 +126,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="admin-header">
+<div class="admin-page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
     <div class="admin-header-title">
         <h1>{% if client %}Modifier — {{ client.full_name }}{% else %}Nouveau Client{% endif %}</h1>
         <p>{% if client %}Modifier les informations du client.{% else %}Gestion de la base de données locataires.{% endif %}</p>

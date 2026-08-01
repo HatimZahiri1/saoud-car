@@ -212,11 +212,12 @@
                 Signatures
             </div>
             <div class="ct-card-body">
+                {% if contract %}
                 <div class="sig-area">
                     <!-- Signature Directeur -->
                     <div class="sig-box">
                         <div class="sig-title">Signature du Directeur</div>
-                        {% if contract and contract.director_signature %}
+                        {% if contract.director_signature %}
                         <img src="{{ contract.director_signature.url }}" class="sig-preview" alt="Signature directeur">
                         <div class="sig-actions" style="margin-top: 10px;">
                             <span style="color: #16a34a; font-size: 0.85rem; font-weight: 600;">
@@ -236,16 +237,16 @@
                     </div>
 
                     <!-- Signature Client -->
-                    <div class="sig-box">
+                    <div class="sig-box" id="clientSignatureBox">
                         <div class="sig-title">Signature du Client</div>
-                        {% if contract and contract.client_signature %}
+                        {% if contract.client_signature %}
                         <img src="{{ contract.client_signature.url }}" class="sig-preview" alt="Signature client">
                         <div class="sig-actions" style="margin-top: 10px;">
                             <span style="color: #16a34a; font-size: 0.85rem; font-weight: 600;">
                                 <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Signé le {{ contract.client_signed_at|date:"d/m/Y H:i" }}
                             </span>
                         </div>
-                        {% elif contract %}
+                        {% else %}
                         <div style="padding: 20px; color: #888;">
                             <i data-lucide="clock" style="width: 28px; height: 28px; color: #ddd; margin-bottom: 8px;"></i>
                             <div style="font-size: 0.88rem;">En attente de signature...</div>
@@ -260,13 +261,16 @@
                         <div style="font-size: 0.78rem; color: #888; margin-top: 8px;">
                             Partagez ce lien avec le client pour qu'il signe le contrat.
                         </div>
-                        {% else %}
-                        <div style="padding: 20px; color: #999; font-size: 0.88rem;">
-                            Le lien de signature sera disponible après la création du contrat.
-                        </div>
                         {% endif %}
                     </div>
                 </div>
+                {% else %}
+                <div style="padding: 30px 20px; text-align: center; color: #888; background: #f9fafb; border-radius: 8px; border: 1px dashed #ddd;">
+                    <i data-lucide="lock" style="width: 32px; height: 32px; color: #cbd5e1; margin-bottom: 12px;"></i>
+                    <div style="font-size: 0.95rem; font-weight: 500; color: #475569;">Espace Signature bloqué</div>
+                    <div style="font-size: 0.85rem; margin-top: 4px;">Enregistrez d'abord le contrat pour débloquer l'espace de signature et générer le lien client.</div>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -384,5 +388,29 @@ function copyLink() {
         setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" style="width:14px;height:14px;"></i> Copier'; lucide.createIcons(); }, 2000);
     });
 }
+
+{% if contract and not contract.client_signature %}
+// Polling for client signature status
+setInterval(function() {
+    fetch("{% url 'core:admin_contract_signature_status' contract.id %}")
+        .then(response => response.json())
+        .then(data => {
+            if (data.signed) {
+                const box = document.getElementById('clientSignatureBox');
+                box.innerHTML = `
+                    <div class="sig-title">Signature du Client</div>
+                    <img src="${data.image_url}" class="sig-preview" alt="Signature client">
+                    <div class="sig-actions" style="margin-top: 10px;">
+                        <span style="color: #16a34a; font-size: 0.85rem; font-weight: 600;">
+                            <i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:middle;"></i> Signé le ${data.date}
+                        </span>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        })
+        .catch(err => console.error(err));
+}, 3000);
+{% endif %}
 </script>
 {% endblock %}

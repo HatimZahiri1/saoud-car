@@ -1,64 +1,125 @@
 {% extends 'core/admin/base_admin.html' %}
 {% block title %}{% if maintenance %}Modifier Vidange{% else %}Nouvelle Vidange{% endif %}{% endblock %}
 
+{% block extra_head %}
+<style>
+.form-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 800px;
+}
+.f-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.f-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px;
+    background: linear-gradient(135deg, #f8f9fa, #eef1f5);
+    border-bottom: 1px solid var(--admin-border);
+    font-weight: 700;
+}
+.f-card-header .h-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; color: white;
+}
+.f-card-header .h-icon i { width: 17px; height: 17px; }
+.f-card-body { padding: 24px; }
+.f-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.f-field { margin-bottom: 18px; }
+.f-field:last-child { margin-bottom: 0; }
+.f-label {
+    display: block; font-size: 0.78rem; font-weight: 600; color: var(--admin-text-muted);
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.f-label .req { color: var(--admin-red); }
+.f-input {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--admin-border); border-radius: 8px;
+    font-size: 0.92rem; font-family: var(--font-body); color: var(--admin-text);
+    transition: border-color 0.2s, box-shadow 0.2s; background: white;
+}
+.f-input:focus {
+    outline: none; border-color: var(--admin-blue);
+    box-shadow: 0 0 0 3px rgba(41, 121, 255, 0.1);
+}
+@media (max-width: 768px) {
+    .f-grid-2 { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="admin-header">
+<div class="admin-page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
     <div class="admin-header-title">
         <h1>{% if maintenance %}Modifier Vidange{% else %}Nouvelle Vidange{% endif %}</h1>
+        <p>Enregistrez une opération de maintenance pour un véhicule.</p>
     </div>
     <a href="{% url 'core:admin_maintenances' %}" class="admin-btn">
         <i data-lucide="arrow-left"></i> Retour
     </a>
 </div>
 
-<div class="admin-card">
-    <form method="POST" class="admin-form">
-        {% csrf_token %}
+<form method="POST" class="admin-form">
+    {% csrf_token %}
+    <div class="form-layout">
+        <div class="f-card">
+            <div class="f-card-header">
+                <div class="h-icon" style="background: #2563eb;"><i data-lucide="droplet"></i></div>
+                Détails de la Vidange / Entretien
+            </div>
+            <div class="f-card-body">
+                <div class="f-field">
+                    <label class="f-label">Voiture <span class="req">*</span></label>
+                    <select name="car" class="f-input" required>
+                        <option value="">— Sélectionnez une voiture —</option>
+                        {% for car in cars %}
+                        <option value="{{ car.id }}" {% if maintenance and maintenance.car_id == car.id %}selected{% endif %}>
+                            {{ car.get_brand_display }} {{ car.name }} ({{ car.license_plate }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="f-grid-2">
+                    <div class="f-field">
+                        <label class="f-label">Date <span class="req">*</span></label>
+                        <input type="date" name="date" class="f-input" value="{{ maintenance.date|date:'Y-m-d'|default:'' }}" required>
+                    </div>
+                    <div class="f-field">
+                        <label class="f-label">Coût (MAD)</label>
+                        <input type="number" step="0.01" name="cost" class="f-input" value="{{ maintenance.cost|default:'0' }}">
+                    </div>
+                </div>
+
+                <div class="f-grid-2">
+                    <div class="f-field">
+                        <label class="f-label">Kilométrage actuel <span class="req">*</span></label>
+                        <input type="number" name="current_mileage" class="f-input" value="{{ maintenance.current_mileage|default:'' }}" required>
+                    </div>
+                    <div class="f-field">
+                        <label class="f-label">Prochaine vidange prévue (Km) <span class="req">*</span></label>
+                        <input type="number" name="next_mileage" class="f-input" value="{{ maintenance.next_mileage|default:'' }}" required>
+                    </div>
+                </div>
+
+                <div class="f-field" style="margin-top: 18px;">
+                    <label class="f-label">Notes / Observations</label>
+                    <textarea name="notes" rows="4" class="f-input" placeholder="Huile moteur, filtres, plaquettes...">{{ maintenance.notes }}</textarea>
+                </div>
+            </div>
+        </div>
         
-        <div class="form-group">
-            <label>Voiture</label>
-            <select name="car" required>
-                <option value="">Sélectionnez une voiture</option>
-                {% for car in cars %}
-                <option value="{{ car.id }}" {% if maintenance and maintenance.car_id == car.id %}selected{% endif %}>
-                    {{ car.get_brand_display }} {{ car.name }} ({{ car.license_plate }})
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="form-group">
-                <label>Date</label>
-                <input type="date" name="date" value="{{ maintenance.date|date:'Y-m-d'|default:'' }}" required>
-            </div>
-            <div class="form-group">
-                <label>Coût (MAD)</label>
-                <input type="number" step="0.01" name="cost" value="{{ maintenance.cost|default:'0' }}">
-            </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="form-group">
-                <label>Kilométrage actuel</label>
-                <input type="number" name="current_mileage" value="{{ maintenance.current_mileage|default:'' }}" required>
-            </div>
-            <div class="form-group">
-                <label>Prochaine vidange prévue (Km)</label>
-                <input type="number" name="next_mileage" value="{{ maintenance.next_mileage|default:'' }}" required>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Notes / Observations</label>
-            <textarea name="notes" rows="4">{{ maintenance.notes }}</textarea>
-        </div>
-
-        <div class="form-actions" style="margin-top: 30px;">
-            <button type="submit" class="admin-btn admin-btn-primary">
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+            <a href="{% url 'core:admin_maintenances' %}" class="admin-btn">Annuler</a>
+            <button type="submit" class="admin-btn admin-btn-primary" style="padding: 12px 28px;">
                 <i data-lucide="save"></i> Enregistrer
             </button>
         </div>
-    </form>
-</div>
+    </div>
+</form>
 {% endblock %}

@@ -1,76 +1,137 @@
 {% extends 'core/admin/base_admin.html' %}
 {% block title %}{% if reservation %}Modifier Réservation{% else %}Nouvelle Réservation{% endif %}{% endblock %}
 
+{% block extra_head %}
+<style>
+.form-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 800px;
+}
+.f-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.f-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px;
+    background: linear-gradient(135deg, #f8f9fa, #eef1f5);
+    border-bottom: 1px solid var(--admin-border);
+    font-weight: 700;
+}
+.f-card-header .h-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; color: white;
+}
+.f-card-header .h-icon i { width: 17px; height: 17px; }
+.f-card-body { padding: 24px; }
+.f-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.f-field { margin-bottom: 18px; }
+.f-field:last-child { margin-bottom: 0; }
+.f-label {
+    display: block; font-size: 0.78rem; font-weight: 600; color: var(--admin-text-muted);
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.f-label .req { color: var(--admin-red); }
+.f-input {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--admin-border); border-radius: 8px;
+    font-size: 0.92rem; font-family: var(--font-body); color: var(--admin-text);
+    transition: border-color 0.2s, box-shadow 0.2s; background: white;
+}
+.f-input:focus {
+    outline: none; border-color: var(--admin-blue);
+    box-shadow: 0 0 0 3px rgba(41, 121, 255, 0.1);
+}
+@media (max-width: 768px) {
+    .f-grid-2 { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="admin-header">
+<div class="admin-page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
     <div class="admin-header-title">
         <h1>{% if reservation %}Modifier Réservation{% else %}Nouvelle Réservation{% endif %}</h1>
+        <p>Gérez les informations de cette réservation.</p>
     </div>
     <a href="{% url 'core:admin_reservations' %}" class="admin-btn">
         <i data-lucide="arrow-left"></i> Retour
     </a>
 </div>
 
-<div class="admin-card">
-    <form method="POST" class="admin-form">
-        {% csrf_token %}
+<form method="POST" class="admin-form">
+    {% csrf_token %}
+    <div class="form-layout">
+        <div class="f-card">
+            <div class="f-card-header">
+                <div class="h-icon" style="background: #047857;"><i data-lucide="calendar"></i></div>
+                Détails de la réservation
+            </div>
+            <div class="f-card-body">
+                <div class="f-grid-2">
+                    <div class="f-field">
+                        <label class="f-label">Client <span class="req">*</span></label>
+                        <select name="client" class="f-input" required>
+                            <option value="">— Sélectionnez un client —</option>
+                            {% for client in clients %}
+                            <option value="{{ client.id }}" {% if reservation and reservation.client_id == client.id %}selected{% endif %}>
+                                {{ client.full_name }} ({{ client.phone }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="f-field">
+                        <label class="f-label">Voiture <span class="req">*</span></label>
+                        <select name="car" class="f-input" required>
+                            <option value="">— Sélectionnez une voiture —</option>
+                            {% for car in cars %}
+                            <option value="{{ car.id }}" {% if reservation and reservation.car_id == car.id %}selected{% endif %}>
+                                {{ car.get_brand_display }} {{ car.name }} ({{ car.license_plate }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="f-grid-2">
+                    <div class="f-field">
+                        <label class="f-label">Date de début <span class="req">*</span></label>
+                        <input type="date" name="start_date" class="f-input" value="{{ reservation.start_date|date:'Y-m-d'|default:'' }}" required>
+                    </div>
+                    <div class="f-field">
+                        <label class="f-label">Date de fin <span class="req">*</span></label>
+                        <input type="date" name="end_date" class="f-input" value="{{ reservation.end_date|date:'Y-m-d'|default:'' }}" required>
+                    </div>
+                </div>
+                
+                <div class="f-field">
+                    <label class="f-label">Statut <span class="req">*</span></label>
+                    <select name="status" class="f-input" required>
+                        <option value="en_attente" {% if reservation and reservation.status == 'en_attente' %}selected{% endif %}>En attente</option>
+                        <option value="confirmee" {% if reservation and reservation.status == 'confirmee' %}selected{% endif %}>Confirmée</option>
+                        <option value="annulee" {% if reservation and reservation.status == 'annulee' %}selected{% endif %}>Annulée</option>
+                    </select>
+                </div>
+
+                <div class="f-field" style="margin-top: 18px;">
+                    <label class="f-label">Notes / Observations</label>
+                    <textarea name="notes" rows="4" class="f-input" placeholder="Informations complémentaires...">{{ reservation.notes }}</textarea>
+                </div>
+            </div>
+        </div>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="form-group">
-                <label>Client</label>
-                <select name="client" required>
-                    <option value="">Sélectionnez un client</option>
-                    {% for client in clients %}
-                    <option value="{{ client.id }}" {% if reservation and reservation.client_id == client.id %}selected{% endif %}>
-                        {{ client.full_name }} ({{ client.phone }})
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>Voiture</label>
-                <select name="car" required>
-                    <option value="">Sélectionnez une voiture</option>
-                    {% for car in cars %}
-                    <option value="{{ car.id }}" {% if reservation and reservation.car_id == car.id %}selected{% endif %}>
-                        {{ car.get_brand_display }} {{ car.name }} ({{ car.license_plate }})
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="form-group">
-                <label>Date de début</label>
-                <input type="date" name="start_date" value="{{ reservation.start_date|date:'Y-m-d'|default:'' }}" required>
-            </div>
-            <div class="form-group">
-                <label>Date de fin</label>
-                <input type="date" name="end_date" value="{{ reservation.end_date|date:'Y-m-d'|default:'' }}" required>
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label>Statut</label>
-            <select name="status" required>
-                <option value="en_attente" {% if reservation and reservation.status == 'en_attente' %}selected{% endif %}>En attente</option>
-                <option value="confirmee" {% if reservation and reservation.status == 'confirmee' %}selected{% endif %}>Confirmée</option>
-                <option value="annulee" {% if reservation and reservation.status == 'annulee' %}selected{% endif %}>Annulée</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Notes / Observations</label>
-            <textarea name="notes" rows="4">{{ reservation.notes }}</textarea>
-        </div>
-
-        <div class="form-actions" style="margin-top: 30px;">
-            <button type="submit" class="admin-btn admin-btn-primary">
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+            <a href="{% url 'core:admin_reservations' %}" class="admin-btn">Annuler</a>
+            <button type="submit" class="admin-btn admin-btn-primary" style="padding: 12px 28px;">
                 <i data-lucide="save"></i> Enregistrer
             </button>
         </div>
-    </form>
-</div>
+    </div>
+</form>
 {% endblock %}
