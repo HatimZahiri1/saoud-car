@@ -207,7 +207,17 @@ class RentalContract(models.Model):
     def duration_days(self):
         """Calculates the rental duration in days."""
         if self.start_date and self.end_date:
-            delta = self.end_date - self.start_date
+            import datetime
+            
+            start = self.start_date
+            end = self.end_date
+            
+            if isinstance(start, str):
+                start = datetime.datetime.strptime(start, '%Y-%m-%d').date()
+            if isinstance(end, str):
+                end = datetime.datetime.strptime(end, '%Y-%m-%d').date()
+                
+            delta = end - start
             return max(delta.days, 1)
         return 0
 
