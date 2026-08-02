@@ -340,7 +340,7 @@ input:checked + .toggle-slider:before {
                                 {% if agency.logo %}
                                     <img src="{{ agency.logo.url }}" alt="Logo">
                                 {% else %}
-                                    <span class="placeholder">Pas de logo</span>
+                                    <img src="{% static 'core/img/contlogo.png' %}" alt="Logo">
                                 {% endif %}
                             </div>
                             <label class="upload-btn" style="background: #0095ff; color: white; box-shadow: 0 2px 8px rgba(0,149,255,0.3);">
@@ -358,10 +358,10 @@ input:checked + .toggle-slider:before {
                                 {% if agency.stamp %}
                                     <img src="{{ agency.stamp.url }}" alt="Cachet">
                                 {% else %}
-                                    <span class="placeholder" style="color: #bbb;">Pas de cachet</span>
+                                    <img src="{% static 'core/img/cachet.png' %}" alt="Cachet" style="max-width:100%; max-height:100%; object-fit:contain;">
                                 {% endif %}
                             </div>
-                            <label class="upload-btn" style="background: white; color: #333; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                            <label class="upload-btn" style="background: white; border: 1px solid #ddd; color: #555; right: -10px; bottom: -10px;">
                                 <i data-lucide="upload"></i>
                                 <input type="file" name="stamp" accept="image/*">
                             </label>

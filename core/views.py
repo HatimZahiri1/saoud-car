@@ -744,6 +744,9 @@ def admin_contract_pdf(request, contract_id):
     elements = []
     styles = getSampleStyleSheet()
 
+    import os
+    from django.conf import settings
+    
     # Custom styles
     title_style = ParagraphStyle('Title', parent=styles['Title'], fontSize=20, textColor=colors.HexColor('#E53935'), spaceAfter=6)
     subtitle_style = ParagraphStyle('Subtitle', parent=styles['Normal'], fontSize=10, textColor=colors.grey, alignment=TA_CENTER, spaceAfter=20)
@@ -751,7 +754,20 @@ def admin_contract_pdf(request, contract_id):
     normal_style = ParagraphStyle('CustomNormal', parent=styles['Normal'], fontSize=10, leading=14)
     small_style = ParagraphStyle('Small', parent=styles['Normal'], fontSize=8, textColor=colors.grey, leading=12)
 
+    agency = AgencyInfo.objects.first()
+
     # Header
+    logo_path = None
+    if agency and agency.logo and os.path.exists(agency.logo.path):
+        logo_path = agency.logo.path
+    else:
+        fallback_logo = os.path.join(settings.BASE_DIR, 'core', 'static', 'core', 'img', 'contlogo.png')
+        if os.path.exists(fallback_logo):
+            logo_path = fallback_logo
+            
+    if logo_path:
+        elements.append(Image(logo_path, width=4*cm, height=4*cm))
+        
     elements.append(Paragraph("SAOUD CAR", title_style))
     elements.append(Paragraph("Location de Voitures — Ben Slimane, Maroc", subtitle_style))
     elements.append(Paragraph(f"CONTRAT DE LOCATION N° {contract.contract_number}", ParagraphStyle('ContractNum', parent=styles['Heading1'], fontSize=14, alignment=TA_CENTER, textColor=colors.HexColor('#1A1A2E'), spaceAfter=20)))
@@ -850,7 +866,6 @@ def admin_contract_pdf(request, contract_id):
     elements.append(price_table)
 
     # Terms
-    agency = AgencyInfo.objects.first()
     if agency and agency.conditions_generales:
         elements.append(Spacer(1, 20))
         elements.append(Paragraph("CONDITIONS GÉNÉRALES", heading_style))
@@ -874,20 +889,32 @@ def admin_contract_pdf(request, contract_id):
     elements.append(Spacer(1, 40))
     dir_sig = ''
     if contract.director_signature:
-        import os
         if os.path.exists(contract.director_signature.path):
             dir_sig = Image(contract.director_signature.path, width=4*cm, height=1.5*cm)
             
     client_sig = ''
     if contract.client_signature:
-        import os
         if os.path.exists(contract.client_signature.path):
             client_sig = Image(contract.client_signature.path, width=4*cm, height=1.5*cm)
+
+    # Cachet (Stamp)
+    stamp_path = None
+    if agency and getattr(agency, 'stamp', None) and os.path.exists(agency.stamp.path):
+        stamp_path = agency.stamp.path
+    else:
+        fallback_stamp = os.path.join(settings.BASE_DIR, 'core', 'static', 'core', 'img', 'cachet.png')
+        if os.path.exists(fallback_stamp):
+            stamp_path = fallback_stamp
+            
+    stamp_img = ''
+    if stamp_path:
+        stamp_img = Image(stamp_path, width=4*cm, height=4*cm)
 
     sig_data = [
         ['Signature du Loueur', '', 'Signature du Locataire'],
         ['SAOUD CAR', '', contract.client.full_name],
         [dir_sig, '', client_sig],
+        [stamp_img, '', '']
     ]
     if not dir_sig or not client_sig:
         sig_data.append(['___________________', '', '___________________'])
