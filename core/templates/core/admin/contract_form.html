@@ -1,4 +1,5 @@
 {% extends 'core/admin/base_admin.html' %}
+{% load l10n %}
 {% block title %}{% if contract %}Modifier le contrat{% else %}Nouveau contrat{% endif %}{% endblock %}
 
 {% block extra_head %}
@@ -165,7 +166,7 @@
                 <div class="ct-grid-2">
                     <div class="ct-field">
                         <label class="ct-label">Prix par jour (MAD) <span class="req">*</span></label>
-                        <input type="number" name="price_per_day" id="pricePerDay" step="0.01" class="ct-input" value="{% if contract %}{{ contract.price_per_day }}{% endif %}" required>
+                        <input type="number" name="price_per_day" id="pricePerDay" step="0.01" class="ct-input" value="{% if contract %}{{ contract.price_per_day|unlocalize }}{% endif %}" required>
                     </div>
                     <div class="ct-field">
                         <label class="ct-label">Caution (MAD)</label>

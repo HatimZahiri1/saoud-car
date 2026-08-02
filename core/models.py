@@ -32,8 +32,21 @@ class Brand(models.Model):
             try:
                 return self.logo.url
             except ValueError:
-                return self.logo_url or ''
-        return self.logo_url or ''
+                pass
+        
+        if self.logo_url:
+            return self.logo_url
+            
+        from django.templatetags.static import static
+        brand_lower = self.name.lower()
+        if "dacia" in brand_lower:
+            return static('core/images/brands/logodacia.png')
+        if "renault" in brand_lower:
+            return static('core/images/brands/logorenault.webp')
+        if "hyundai" in brand_lower:
+            return static('core/images/brands/logohyundai.png')
+            
+        return ''
 
 
 # ============================================
@@ -103,6 +116,22 @@ class Car(models.Model):
         if self.image:
             return self.image.url
         return self.image_url or ''
+
+    def get_logo_url(self):
+        """Returns the logo URL from the associated brand or fallback."""
+        if self.brand_ref:
+            return self.brand_ref.get_logo_url()
+        
+        from django.templatetags.static import static
+        brand_lower = self.brand.lower() if self.brand else ""
+        if "dacia" in brand_lower:
+            return static('core/images/brands/logodacia.png')
+        if "renault" in brand_lower:
+            return static('core/images/brands/logorenault.webp')
+        if "hyundai" in brand_lower:
+            return static('core/images/brands/logohyundai.png')
+            
+        return ''
 
 
 # ============================================
