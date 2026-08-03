@@ -156,8 +156,8 @@ def generate_contract_pdf(request, contract_id):
     # 2. DOTTED INFO ROW
     info_data = [
         [Paragraph("Fait le :", label_style), Paragraph(str(contract.created_at.strftime('%d/%m/%Y')), val_style), Paragraph("Marque :", label_style), Paragraph(contract.car.get_brand_display(), val_style)],
-        [Paragraph("Lieu de livraison :", label_style), Paragraph(contract.delivery_location or '—', val_style), Paragraph("Immatriculation :", label_style), Paragraph(contract.car.license_plate or '—', val_style)],
-        [Paragraph("Lieu de reprise :", label_style), Paragraph(contract.return_location or '—', val_style), Paragraph("Agent Commercial :", label_style), Paragraph(contract.agent_name or '—', val_style)],
+        [Paragraph("Lieu de livraison :", label_style), Paragraph(getattr(contract, 'delivery_location', '') or '—', val_style), Paragraph("Immatriculation :", label_style), Paragraph(contract.car.license_plate or '—', val_style)],
+        [Paragraph("Lieu de reprise :", label_style), Paragraph(getattr(contract, 'return_location', '') or '—', val_style), Paragraph("Agent Commercial :", label_style), Paragraph(getattr(contract, 'agent_name', '') or '—', val_style)],
     ]
     info_t = Table(info_data, colWidths=[3*cm, 6.5*cm, 3*cm, 6.5*cm])
     info_t.setStyle(TableStyle([
@@ -177,8 +177,8 @@ def generate_contract_pdf(request, contract_id):
     # --- LEFT COLUMN ---
     # DUREE
     duree_data = [
-        [Paragraph("Date et Heure Départ :", label_style), Paragraph(f"{contract.start_date.strftime('%d/%m/%Y')} à {contract.start_time.strftime('%H:%M') if contract.start_time else ''}", val_style)],
-        [Paragraph("Date et Heure Retour :", label_style), Paragraph(f"{contract.end_date.strftime('%d/%m/%Y')} à {contract.end_time.strftime('%H:%M') if contract.end_time else ''}", val_style)],
+        [Paragraph("Date et Heure Départ :", label_style), Paragraph(f"{contract.start_date.strftime('%d/%m/%Y')} à {getattr(contract, 'start_time', '').strftime('%H:%M') if getattr(contract, 'start_time', '') else '' }", val_style)],
+        [Paragraph("Date et Heure Retour :", label_style), Paragraph(f"{contract.end_date.strftime('%d/%m/%Y')} à {getattr(contract, 'end_time', '').strftime('%H:%M') if getattr(contract, 'end_time', '') else '' }", val_style)],
         [Paragraph("Durée de location :", label_style), Paragraph(f"{contract.duration_days} Jours", val_style)],
     ]
     t_duree = Table(duree_data, colWidths=[4*cm, 4.5*cm])
@@ -194,10 +194,10 @@ def generate_contract_pdf(request, contract_id):
         [Paragraph("Adresse :", label_style), Paragraph(client.address or '—', val_style)],
         [Paragraph("Tél :", label_style), Paragraph(client.phone, val_style)],
         [Paragraph("Permis N° :", label_style), Paragraph(client.drivers_license or '—', val_style)],
-        [Paragraph("Délivré, le :", label_style), Paragraph(str(client.license_date.strftime('%d/%m/%Y') if client.license_date else '—'), val_style)],
+        [Paragraph("Délivré, le :", label_style), Paragraph(str(getattr(client, 'license_delivered', None).strftime('%d/%m/%Y') if getattr(client, 'license_delivered', None) else '—'), val_style)],
         [Paragraph("Nationalité :", label_style), Paragraph(client.nationality or '—', val_style)],
         [Paragraph("CIN N° :", label_style), Paragraph(client.cin, val_style)],
-        [Paragraph("Valable Jusqu'au :", label_style), Paragraph(str(client.cin_validity.strftime('%d/%m/%Y') if getattr(client, 'cin_validity', None) else '—'), val_style)],
+        [Paragraph("Valable Jusqu'au :", label_style), Paragraph(str(getattr(client, 'cin_expiry', None).strftime('%d/%m/%Y') if getattr(client, 'cin_expiry', None) else '—'), val_style)],
     ]
     t_loc = Table(loc_data, colWidths=[3.5*cm, 5*cm])
     t_loc.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'MIDDLE'), ('LEFTPADDING', (0,0), (-1,-1), 0), ('BOTTOMPADDING', (0,0), (-1,-1), 2)]))
@@ -257,7 +257,7 @@ def generate_contract_pdf(request, contract_id):
         [Paragraph("Frais de livraison :", label_style), Paragraph("0.00 DH", val_style)],
         [Paragraph("Frais de Restitution :", label_style), Paragraph("0.00 DH", val_style)],
         [Paragraph("TOTAL GÉNÉRAL :", val_style), Paragraph(f"{contract.total_amount} DH", val_style)],
-        [Paragraph("MONTANT PAYÉ :", val_style), Paragraph(f"{contract.advance_payment} DH" if getattr(contract, 'advance_payment', 0) else f"{contract.total_amount} DH", val_style)],
+        [Paragraph("MONTANT PAYÉ :", val_style), Paragraph(f"{getattr(contract, 'advance_payment', 0)} DH" if getattr(contract, 'advance_payment', 0) else f"{contract.total_amount} DH", val_style)],
         [Paragraph("LE RESTE A PAYER:", val_style), Paragraph("0.00 DH", val_style)],
     ]
     t_prix = Table(prix_data, colWidths=[6*cm, 3*cm])
@@ -313,7 +313,7 @@ def generate_contract_pdf(request, contract_id):
     elements.append(Spacer(1, 5))
     elements.append(Paragraph("J'ai lu et accepté les conditions stipulées ci-contre au verso de ce contrat. Le client est seul responsable des violations de la loi sur la circulation routière.", ParagraphStyle('Foot', fontSize=8)))
     elements.append(Spacer(1, 5))
-    footer_data = [[Paragraph(f"<b>{agency.name if agency else 'SAOUD CAR'}</b><br/>{agency.address if agency else ''}<br/>Tél : {agency.phone_mobile if agency else ''}<br/>Patente: {agency.patente if agency else ''} - IF: {agency.if_fiscale if agency else ''} - RC: {agency.rc if agency else ''}", ParagraphStyle('F', alignment=TA_CENTER, fontSize=8, leading=10))]]
+    footer_data = [[Paragraph(f"<b>{agency.name if agency else 'SAOUD CAR'}</b><br/>{agency.address if agency else ''}<br/>Tél : {agency.phone_mobile if agency else ''}<br/>Patente: {agency.patente if agency else ''} - IF: {agency.if_tax if agency else ''} - RC: {agency.rc if agency else ''}", ParagraphStyle('F', alignment=TA_CENTER, fontSize=8, leading=10))]]
     t_foot = Table(footer_data, colWidths=[19*cm])
     t_foot.setStyle(TableStyle([('LINEABOVE', (0,0), (-1,-1), 1.5, colors.orange)]))
     elements.append(t_foot)
