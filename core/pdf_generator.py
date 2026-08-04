@@ -184,51 +184,216 @@ def draw_fuel_gauge(c, cx, cy, radius=18):
     c.restoreState()
 
 
-def draw_car_diagram(c, cx, cy, scale=1.0):
-    """Draw a premium top-down car silhouette."""
+def draw_car_diagram(c, x, y, w, h):
+    """Draw a professional car damage inspection diagram.
+    
+    Renders a clean top-down car outline with labeled body panels and
+    numbered zones, matching the style of professional rental contracts.
+    The car is drawn centered within the box (x, y, w, h).
+    """
     c.saveState()
-    s = scale
-    # Body outline
-    c.setStrokeColor(PRIMARY)
-    c.setFillColor(colors.HexColor('#F0F0F0'))
+
+    # Compute car dimensions to fit inside the box with padding
+    pad = 6
+    avail_w = w - pad * 2
+    avail_h = h - pad * 2
+    # Car proportions: ~0.4 width-to-height ratio
+    car_h = avail_h * 0.92
+    car_w = car_h * 0.38
+    if car_w > avail_w * 0.45:
+        car_w = avail_w * 0.45
+        car_h = car_w / 0.38
+
+    # Center the car in left portion of box
+    cx = x + w * 0.32
+    cy = y + h * 0.48
+    hw = car_w / 2  # half width
+    hh = car_h / 2  # half height
+
+    OUTLINE = colors.HexColor('#2C3E50')
+    BODY_FILL = colors.HexColor('#F7F9FC')
+    GLASS = colors.HexColor('#D5E8F7')
+    GLASS_STROKE = colors.HexColor('#90B4D2')
+    WHEEL = colors.HexColor('#3D3D3D')
+    LIGHT_FRONT = colors.HexColor('#F5D76E')
+    LIGHT_REAR = colors.HexColor('#E74C3C')
+    PANEL_LINE = colors.HexColor('#BDC3C7')
+    LABEL_COLOR = colors.HexColor('#7F8C8D')
+    NUM_COLOR = colors.HexColor('#2C3E50')
+
+    # ── Main body shell ──
+    c.setStrokeColor(OUTLINE)
+    c.setFillColor(BODY_FILL)
     c.setLineWidth(1.2)
-    # Main body (rounded rectangle)
-    bw, bh = 30 * s, 65 * s
-    c.roundRect(cx - bw / 2, cy - bh / 2, bw, bh, 8 * s, stroke=1, fill=1)
-    # Windshields
-    c.setFillColor(colors.HexColor('#B3D4FC'))
-    c.setStrokeColor(colors.HexColor('#7EABD4'))
-    c.setLineWidth(0.8)
-    # Front windshield
-    c.roundRect(cx - 10 * s, cy + 14 * s, 20 * s, 10 * s, 3 * s, stroke=1, fill=1)
-    # Rear windshield
-    c.roundRect(cx - 9 * s, cy - 22 * s, 18 * s, 8 * s, 3 * s, stroke=1, fill=1)
-    # Wheels
-    c.setFillColor(colors.HexColor('#333333'))
-    c.setStrokeColor(BLACK)
-    ww, wh = 5 * s, 12 * s
-    # Front left
-    c.roundRect(cx - bw / 2 - ww / 2 - 1, cy + 12 * s, ww, wh, 2 * s, stroke=1, fill=1)
-    # Front right
-    c.roundRect(cx + bw / 2 - ww / 2 + 1, cy + 12 * s, ww, wh, 2 * s, stroke=1, fill=1)
-    # Rear left
-    c.roundRect(cx - bw / 2 - ww / 2 - 1, cy - 22 * s, ww, wh, 2 * s, stroke=1, fill=1)
-    # Rear right
-    c.roundRect(cx + bw / 2 - ww / 2 + 1, cy - 22 * s, ww, wh, 2 * s, stroke=1, fill=1)
-    # Side mirrors
-    c.setFillColor(colors.HexColor('#CCCCCC'))
+    # Draw body as a path with curved front and rear
+    p = c.beginPath()
+    r_front = hw * 0.7   # front curve radius
+    r_rear = hw * 0.5    # rear curve radius
+    # Start bottom-left, go clockwise
+    p.moveTo(cx - hw + r_rear, cy - hh)
+    # Bottom edge
+    p.lineTo(cx + hw - r_rear, cy - hh)
+    # Bottom-right corner (rear right)
+    p.curveTo(cx + hw, cy - hh, cx + hw, cy - hh + r_rear * 0.5,
+              cx + hw, cy - hh + r_rear)
+    # Right side
+    p.lineTo(cx + hw, cy + hh - r_front)
+    # Top-right corner (front right)
+    p.curveTo(cx + hw, cy + hh - r_front * 0.3,
+              cx + hw * 0.85, cy + hh,
+              cx, cy + hh + hw * 0.08)
+    # Top-left corner (front left) — nose
+    p.curveTo(cx - hw * 0.85, cy + hh,
+              cx - hw, cy + hh - r_front * 0.3,
+              cx - hw, cy + hh - r_front)
+    # Left side
+    p.lineTo(cx - hw, cy - hh + r_rear)
+    # Bottom-left corner (rear left)
+    p.curveTo(cx - hw, cy - hh + r_rear * 0.5,
+              cx - hw, cy - hh,
+              cx - hw + r_rear, cy - hh)
+    p.close()
+    c.drawPath(p, stroke=1, fill=1)
+
+    # ── Panel division lines ──
+    c.setStrokeColor(PANEL_LINE)
     c.setLineWidth(0.6)
-    c.roundRect(cx - bw / 2 - 4 * s, cy + 18 * s, 4 * s, 5 * s, 1.5 * s, stroke=1, fill=1)
-    c.roundRect(cx + bw / 2, cy + 18 * s, 4 * s, 5 * s, 1.5 * s, stroke=1, fill=1)
-    # Headlights
-    c.setFillColor(colors.HexColor('#FFF176'))
+    c.setDash([3, 2])
+    # Horizontal center line (separates left/right)
+    c.line(cx, cy - hh + 4, cx, cy + hh - 4)
+    # Cross line for doors (front/rear separation)
+    c.line(cx - hw + 3, cy + hh * 0.08, cx + hw - 3, cy + hh * 0.08)
+    # Hood / trunk separation
+    hood_y = cy + hh * 0.52
+    trunk_y = cy - hh * 0.42
+    c.line(cx - hw + 4, hood_y, cx + hw - 4, hood_y)
+    c.line(cx - hw + 4, trunk_y, cx + hw - 4, trunk_y)
+    c.setDash()
+
+    # ── Windshields ──
+    c.setLineWidth(0.8)
+    c.setStrokeColor(GLASS_STROKE)
+    c.setFillColor(GLASS)
+    # Front windshield
+    fw_w = hw * 1.3
+    fw_h = hh * 0.16
+    fw_y = cy + hh * 0.38
+    c.roundRect(cx - fw_w / 2, fw_y, fw_w, fw_h, 3, stroke=1, fill=1)
+    # Rear windshield
+    rw_w = hw * 1.1
+    rw_h = hh * 0.12
+    rw_y = cy - hh * 0.40
+    c.roundRect(cx - rw_w / 2, rw_y, rw_w, rw_h, 3, stroke=1, fill=1)
+
+    # ── Wheels ──
+    c.setFillColor(WHEEL)
+    c.setStrokeColor(OUTLINE)
+    c.setLineWidth(0.8)
+    ww = hw * 0.28  # wheel width
+    wh = hh * 0.22  # wheel height
+    wr = 2  # wheel corner radius
+    # Front-left
+    c.roundRect(cx - hw - ww * 0.6, cy + hh * 0.22, ww, wh, wr, stroke=1, fill=1)
+    # Front-right
+    c.roundRect(cx + hw - ww * 0.4, cy + hh * 0.22, ww, wh, wr, stroke=1, fill=1)
+    # Rear-left
+    c.roundRect(cx - hw - ww * 0.6, cy - hh * 0.40, ww, wh, wr, stroke=1, fill=1)
+    # Rear-right
+    c.roundRect(cx + hw - ww * 0.4, cy - hh * 0.40, ww, wh, wr, stroke=1, fill=1)
+
+    # ── Side mirrors ──
+    c.setFillColor(BODY_FILL)
+    c.setStrokeColor(OUTLINE)
+    c.setLineWidth(0.7)
+    mw, mh = hw * 0.2, hh * 0.06
+    mirror_y = cy + hh * 0.34
+    c.roundRect(cx - hw - mw - 1, mirror_y, mw, mh, 1.5, stroke=1, fill=1)
+    c.roundRect(cx + hw + 1, mirror_y, mw, mh, 1.5, stroke=1, fill=1)
+
+    # ── Headlights ──
+    c.setFillColor(LIGHT_FRONT)
+    c.setStrokeColor(OUTLINE)
     c.setLineWidth(0.5)
-    c.roundRect(cx - 10 * s, cy + bh / 2 - 4 * s, 6 * s, 3 * s, 1 * s, stroke=1, fill=1)
-    c.roundRect(cx + 4 * s, cy + bh / 2 - 4 * s, 6 * s, 3 * s, 1 * s, stroke=1, fill=1)
-    # Taillights
-    c.setFillColor(DANGER_RED)
-    c.roundRect(cx - 10 * s, cy - bh / 2 + 1 * s, 5 * s, 2.5 * s, 1 * s, stroke=1, fill=1)
-    c.roundRect(cx + 5 * s, cy - bh / 2 + 1 * s, 5 * s, 2.5 * s, 1 * s, stroke=1, fill=1)
+    lw, lh = hw * 0.35, hh * 0.04
+    hl_y = cy + hh - lh - 2
+    c.roundRect(cx - hw * 0.78, hl_y, lw, lh, 1.5, stroke=1, fill=1)
+    c.roundRect(cx + hw * 0.78 - lw, hl_y, lw, lh, 1.5, stroke=1, fill=1)
+
+    # ── Taillights ──
+    c.setFillColor(LIGHT_REAR)
+    tl_y = cy - hh + 2
+    c.roundRect(cx - hw * 0.7, tl_y, lw * 0.8, lh, 1.5, stroke=1, fill=1)
+    c.roundRect(cx + hw * 0.7 - lw * 0.8, tl_y, lw * 0.8, lh, 1.5, stroke=1, fill=1)
+
+    # ── Zone numbers (for damage marking) ──
+    c.setFont('Helvetica-Bold', 6)
+    c.setFillColor(NUM_COLOR)
+    zones = [
+        (cx - hw * 0.45, cy + hh * 0.68, '1'),   # Front-left fender
+        (cx + hw * 0.25, cy + hh * 0.68, '2'),    # Front-right fender
+        (cx - hw * 0.45, cy + hh * 0.22, '3'),    # Front-left door
+        (cx + hw * 0.25, cy + hh * 0.22, '4'),    # Front-right door
+        (cx - hw * 0.45, cy - hh * 0.12, '5'),    # Rear-left door
+        (cx + hw * 0.25, cy - hh * 0.12, '6'),    # Rear-right door
+        (cx - hw * 0.45, cy - hh * 0.55, '7'),    # Rear-left quarter
+        (cx + hw * 0.25, cy - hh * 0.55, '8'),    # Rear-right quarter
+        (cx - hw * 0.1, cy + hh * 0.85, '9'),     # Hood center
+        (cx - hw * 0.1, cy - hh * 0.58, '10'),    # Trunk
+        (cx - hw * 0.1, cy + hh * 0.12, '11'),    # Roof
+    ]
+    for zx, zy, label in zones:
+        # Small circle with number
+        c.setStrokeColor(PANEL_LINE)
+        c.setFillColor(WHITE)
+        c.setLineWidth(0.4)
+        c.circle(zx + 3, zy + 2, 5, fill=1, stroke=1)
+        c.setFillColor(NUM_COLOR)
+        c.setFont('Helvetica-Bold', 5)
+        tw = c.stringWidth(label, 'Helvetica-Bold', 5)
+        c.drawString(zx + 3 - tw / 2, zy + 0.5, label)
+
+    # ── "AVANT" / "ARRIÈRE" labels ──
+    c.setFont('Helvetica', 5.5)
+    c.setFillColor(LABEL_COLOR)
+    c.drawCentredString(cx, cy + hh + hw * 0.08 + 5, 'AVANT')
+    c.drawCentredString(cx, cy - hh - 6, 'ARRIÈRE')
+
+    # ── Legend (right side of box) ──
+    legend_x = x + w * 0.6
+    legend_y = y + h - 28
+    c.setFont('Helvetica-Bold', 6.5)
+    c.setFillColor(NUM_COLOR)
+    c.drawString(legend_x, legend_y, 'Légende :')
+    legend_y -= 3
+
+    legend_items = [
+        ('1-2', 'Ailes avant'),
+        ('3-4', 'Portes avant'),
+        ('5-6', 'Portes arrière'),
+        ('7-8', 'Ailes arrière'),
+        ('9', 'Capot'),
+        ('10', 'Coffre'),
+        ('11', 'Toit'),
+    ]
+    c.setFont('Helvetica', 5.5)
+    for num, desc in legend_items:
+        legend_y -= 10
+        c.setFillColor(NUM_COLOR)
+        c.setFont('Helvetica-Bold', 5.5)
+        c.drawString(legend_x, legend_y, f'{num}')
+        c.setFillColor(LABEL_COLOR)
+        c.setFont('Helvetica', 5.5)
+        c.drawString(legend_x + 16, legend_y, desc)
+
+    # ── Observation dotted lines (below legend) ──
+    legend_y -= 14
+    c.setFont('Helvetica', 6)
+    c.setFillColor(LABEL_COLOR)
+    c.drawString(legend_x, legend_y, 'Observations :')
+    for i in range(3):
+        legend_y -= 10
+        draw_dotted_line(c, legend_x, legend_y, x + w - pad, PANEL_LINE)
+
     c.restoreState()
 
 
@@ -538,28 +703,30 @@ def generate_contract_pdf(request, contract_id):
     right_y = sec_y - 6
 
     # ── ÉTAT DU VÉHICULE ──
-    sec_h = 3.8 * cm
+    sec_h = 5.2 * cm
     sec_y = right_y - sec_h
     header_bottom = draw_section_box(c, col_r_x, sec_y, col_r_w, sec_h, "ÉTAT DU VÉHICULE")
 
-    # Car diagram
-    car_cx = col_r_x + col_r_w * 0.3
-    car_cy = sec_y + sec_h / 2 - 6
-    draw_car_diagram(c, car_cx, car_cy, scale=0.9)
+    # Car diagram (fills most of the section)
+    diagram_x = col_r_x + 2
+    diagram_y = sec_y + 4
+    diagram_w = col_r_w - 4
+    diagram_h = sec_h - 22  # Leave space for header
+    draw_car_diagram(c, diagram_x, diagram_y, diagram_w, diagram_h)
 
-    # Fuel gauge
-    gauge_cx = col_r_x + col_r_w * 0.72
-    gauge_cy = sec_y + sec_h / 2 + 6
-    draw_fuel_gauge(c, gauge_cx, gauge_cy, radius=16)
+    # Fuel gauge (bottom-right of section)
+    gauge_cx = col_r_x + col_r_w * 0.82
+    gauge_cy = sec_y + 20
+    draw_fuel_gauge(c, gauge_cx, gauge_cy, radius=14)
 
-    # KM info
-    iy = sec_y + 10
+    # KM info (bottom of section)
+    iy = sec_y + 8
     ix = col_r_x + 8
     draw_label_value(c, ix, iy, "KM Départ :", f"{contract.km_start or 0} km",
                      value_color=PRIMARY, label_w=2.2 * cm)
     km_end = _safe(contract, 'km_end', None)
     if km_end and km_end != '—':
-        draw_label_value(c, ix + col_r_w / 2, iy, "KM Retour :",
+        draw_label_value(c, ix + 4.5 * cm, iy, "KM Retour :",
                          f"{km_end} km", value_color=PRIMARY, label_w=2.2 * cm)
 
     right_y = sec_y - 6
