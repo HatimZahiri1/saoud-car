@@ -671,11 +671,23 @@ def admin_contract_edit(request, contract_id):
         
         # Save director signature if provided
         sig_data = request.POST.get('director_signature_data')
-        if sig_data:
+        if sig_data and ';base64,' in sig_data:
             import uuid
             format, imgstr = sig_data.split(';base64,')
             ext = format.split('/')[-1]
-            contract.director_signature = ContentFile(base64.b64decode(imgstr), name=f'director_sig_{uuid.uuid4().hex[:8]}.{ext}')
+            # Only save if canvas has actual drawing (not blank)
+            if len(imgstr) > 1000:
+                contract.director_signature = ContentFile(base64.b64decode(imgstr), name=f'director_sig_{uuid.uuid4().hex[:8]}.{ext}')
+
+        # Save client signature if provided directly from admin
+        cli_sig_data = request.POST.get('client_signature_data')
+        if cli_sig_data and ';base64,' in cli_sig_data and not contract.client_signature:
+            import uuid
+            format, imgstr = cli_sig_data.split(';base64,')
+            ext = format.split('/')[-1]
+            if len(imgstr) > 1000:
+                contract.client_signature = ContentFile(base64.b64decode(imgstr), name=f'client_sig_{uuid.uuid4().hex[:8]}.{ext}')
+                contract.client_signed_at = timezone.now()
 
         contract.save()
         messages.success(request, f'Contrat {contract.contract_number} modifié avec succès !')
