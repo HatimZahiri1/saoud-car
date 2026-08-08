@@ -112,10 +112,38 @@ class Car(models.Model):
         return self.brand
 
     def get_image_url(self):
-        """Returns the image URL, preferring uploaded image over URL field."""
+        """Returns the image URL, preferring uploaded image over URL field, then static fallback."""
         if self.image:
             return self.image.url
-        return self.image_url or ''
+        if self.image_url:
+            return self.image_url
+        # Fallback to static images based on car name
+        from django.templatetags.static import static
+        name_lower = (self.name or '').lower()
+        brand_lower = (self.brand or '').lower()
+        mapping = {
+            'logan gris': 'core/images/cars/logan_gris.png',
+            'logan noir': 'core/images/cars/logan_noir.png',
+            'sandero blanche': 'core/images/cars/sandero_blanc.png',
+            'sandero vert': 'core/images/cars/sandero_vert.png',
+            'duster': 'core/images/cars/duster.png',
+            'clio 5': 'core/images/cars/clio5.png',
+            'clio': 'core/images/cars/clio5.png',
+            'i10': 'core/images/cars/hyundai_i10.png',
+        }
+        for key, path in mapping.items():
+            if key in name_lower:
+                return static(path)
+        # Generic brand fallback
+        brand_map = {
+            'dacia': 'core/images/cars/logan_gris.png',
+            'renault': 'core/images/cars/clio5.png',
+            'hyundai': 'core/images/cars/hyundai_i10.png',
+        }
+        for key, path in brand_map.items():
+            if key in brand_lower:
+                return static(path)
+        return ''
 
     def get_logo_url(self):
         """Returns the logo URL from the associated brand or fallback."""
