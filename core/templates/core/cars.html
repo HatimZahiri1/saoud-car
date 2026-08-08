@@ -38,8 +38,8 @@
                 <div class="car-card-badge">Disponible</div>
                 {% endif %}
                 <div class="car-card-image">
-                    {% if car.image_url %}
-                    <img src="{{ car.image_url }}" alt="{{ car.brand }} {{ car.name }}">
+                    {% if car.get_image_url %}
+                    <img src="{{ car.get_image_url }}" alt="{{ car.brand }} {{ car.name }}">
                     {% else %}
                     <div class="car-card-placeholder">
                         <i data-lucide="car" style="width:48px;height:48px;"></i>
